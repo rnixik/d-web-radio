@@ -1,0 +1,14 @@
+version: '3.5'
+
+services:
+  webrtc:
+    image: nginx
+
+    volumes:
+    - ./nginx/webrtc.conf:/etc/nginx/conf.d/webrtc.conf
+    - ./dev_certs/webrtc.local.bundle.crt:/etc/nginx/ssl/webrtc.local.crt
+    - ./dev_certs/webrtc.local.key:/etc/nginx/ssl/webrtc.local.key
+    - ./public:/app/public
+
+    ports:
+    - 8880:443

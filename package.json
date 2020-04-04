@@ -1,0 +1,35 @@
+{
+  "name": "d-web-radio",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@types/socket.io-client": "^1.4.32",
+    "socket.io-client": "^2.3.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.0.2",
+    "vue-property-decorator": "^8.3.0",
+    "webrtc-connection": "/home/roman/projects/webrtc-connection"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-eslint": "^4.1.0",
+    "@vue/cli-plugin-typescript": "^4.1.0",
+    "@vue/cli-service": "^4.1.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "@vue/eslint-config-typescript": "^4.0.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "typescript": "~3.5.3",
+    "vue-template-compiler": "^2.6.10",
+    "@typescript-eslint/eslint-plugin": "^2.12.0",
+    "@typescript-eslint/parser": "^2.12.0",
+    "eslint": "^6.7.2"
+  },
+  "main": "src/index",
+  "typings": "src/index"
+}

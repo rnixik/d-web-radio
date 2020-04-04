@@ -1,0 +1,128 @@
+<template>
+  <div id="app">
+    <LocalSignaling :connectionsPool="connectionsPool"/>
+    <ManualSignaling v-if="showManualConnection" :connectionsPool="connectionsPool"/>
+    <button @click="showManualConnection = true">Manual connection</button>
+    <SocketsSignaling :connectionsPool="connectionsPool"/>
+    <div>Active connections: {{ activeConnectionsNum }}</div>
+
+    <input v-model="input" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="sendMessage">Send</button>
+    <div ref="messages"></div>
+
+    <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
+
+    <br>
+    Login: <input v-model="login"><br>
+    Password: <input v-model="password"><br>
+    Public key: {{ publicKey }}<br>
+    <button @click="register">Register</button>
+    {{ authErrorMessage }}
+  </div>
+</template>
+
+<script lang="ts">
+import { Component, Vue } from 'vue-property-decorator'
+import LocalSignaling from './components/LocalSignaling.vue'
+import ManualSignaling from './components/ManualSignaling.vue'
+import SocketsSignaling from './components/SocketsSignaling.vue'
+import { WebRtcConnectionsPool } from 'webrtc-connection'
+import { Url } from './messages/Url'
+import { StorageService } from '@/services/StorageService'
+import { CryptoService } from '@/services/CryptoService'
+import { UserService } from '@/services/UserService'
+import { TransactionService } from '@/services/TransactionService'
+import { TransactionHasher } from '@/services/TransactionHasher'
+import { TransactionSerializer } from '@/services/TransactionSerializer'
+
+@Component({
+  components: {
+    LocalSignaling,
+    ManualSignaling,
+    SocketsSignaling
+  }
+})
+export default class App extends Vue {
+  private connectionsPool?: WebRtcConnectionsPool
+  private activeConnectionsNum: number = 0
+  private showManualConnection: boolean = false
+  private input = ''
+  private url = ''
+  private login = ''
+  private password = ''
+  private publicKey = ''
+  private authErrorMessage = ''
+  private userService?: UserService
+  private storageNamespace: string = 'webrtc_dapp'
+
+  $refs!: {
+    messages: HTMLElement
+  }
+
+  created () {
+    this.connectionsPool = new WebRtcConnectionsPool()
+    this.connectionsPool.addOnOpenCallback(() => {
+      this.activeConnectionsNum += 1
+    })
+    this.connectionsPool.addOnCloseCallback(() => {
+      this.activeConnectionsNum -= 1
+    })
+    this.connectionsPool.addOnMessageCallback((message: string, peerId: string) => {
+      this.$refs.messages.innerHTML += '<div>' + peerId + ': ' + message + '</div>'
+    })
+
+    const cryptoService = new CryptoService()
+    const transactionHasher = new TransactionHasher(cryptoService)
+    const arrayToTransaction = new TransactionSerializer()
+    const storageService = new StorageService(this.storageNamespace, arrayToTransaction)
+    const transactionService = new TransactionService(transactionHasher)
+    this.userService = new UserService(cryptoService, storageService, transactionService)
+
+    this.$root.$on('manualConnected', () => {
+      this.showManualConnection = false
+    })
+  }
+
+  sendMessage () {
+    if (!this.connectionsPool || !this.input) {
+      return
+    }
+    this.connectionsPool.sendMessage(this.input)
+    this.input = ''
+  }
+
+  addUrl () {
+    if (!this.connectionsPool || !this.url) {
+      return
+    }
+
+    const urlMessage = new Url(this.url)
+
+    this.connectionsPool.sendMessage(urlMessage.toJson())
+    this.url = ''
+  }
+
+  register () {
+    if (!this.userService) {
+      return
+    }
+    this.authErrorMessage = ''
+
+    try {
+      const authenticatedUser = this.userService.register(this.login, this.password)
+      this.publicKey = authenticatedUser.login + '|' + authenticatedUser.publicKey
+    } catch (e) {
+      this.authErrorMessage = e.toString()
+    }
+  }
+}
+</script>
+
+<style>
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>
