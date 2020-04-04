@@ -1,4 +1,8 @@
-# my-project-name
+# d-web-radio
+
+Decentralized web radio based on WebRTC.
+
+**Not ready** - development is in progress.
 
 ## Project setup
 ```
