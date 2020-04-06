@@ -1,18 +1,22 @@
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
-import { StorageService } from '@/services/StorageService'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
+import { Transport } from '@/services/Transport'
 
 export class UserService {
   private cryptoService: CryptoService
-  private storageService: StorageService
   private transactionService: TransactionService
+  private transport: Transport
 
-  constructor (cryptoService: CryptoService, storageService: StorageService, transitionService: TransactionService) {
+  constructor (
+    cryptoService: CryptoService,
+    transitionService: TransactionService,
+    transport: Transport
+  ) {
     this.cryptoService = cryptoService
-    this.storageService = storageService
     this.transactionService = transitionService
+    this.transport = transport
   }
 
   public register (login: string, password: string): AuthenticatedUser {
@@ -25,14 +29,12 @@ export class UserService {
       throw new Error('User already exists')
     }
 
-    this.storageService.storeTransaction(transaction)
+    this.transport.send(authenticatedUser, transaction)
 
     return authenticatedUser
   }
 
   private getUserByPublicKey (publicKey: string): User | null {
-    const transactions = this.storageService.getTransactions()
-
-    return this.transactionService.getUserByPublicKey(transactions, publicKey)
+    return this.transactionService.getUserByPublicKey(publicKey)
   }
 }

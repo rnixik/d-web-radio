@@ -3,12 +3,30 @@ import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegist
 import { TransactionType } from '@/enums/TransactionType'
 import { User } from '@/models/User'
 import { TransactionHasher } from '@/services/TransactionHasher'
+import { Transport } from '@/services/Transport'
+import { StorageService } from '@/services/StorageService'
+import { Validator } from '@/services/Validator'
 
 export class TransactionService {
   private transactionHasher: TransactionHasher
+  private transport: Transport
+  private storageService: StorageService
+  private validator: Validator
 
-  constructor (transactionHasher: TransactionHasher) {
+  constructor (
+    transactionHasher: TransactionHasher,
+    transport: Transport,
+    storageService: StorageService,
+    validator: Validator
+  ) {
     this.transactionHasher = transactionHasher
+    this.transport = transport
+    this.storageService = storageService
+    this.validator = validator
+
+    this.transport.addOnIncomingTransactionsCallback((sender, transactions) => {
+      this.handleIncomingTransactions(sender, transactions)
+    })
   }
 
   public createRegistrationTransaction (publicUser: User): Transaction {
@@ -18,8 +36,10 @@ export class TransactionService {
     return new Transaction(TransactionType.UserRegistration, payload, hash)
   }
 
-  public getUserByPublicKey (transactions: Transaction[], publicKey: string): User | null {
-    for (const tx of transactions) {
+  public getUserByPublicKey (publicKey: string): User | null {
+    const storedTransactions = this.storageService.getTransactions()
+
+    for (const tx of storedTransactions) {
       if (tx.type !== TransactionType.UserRegistration) {
         continue
       }
@@ -30,5 +50,37 @@ export class TransactionService {
     }
 
     return null
+  }
+
+  private handleIncomingTransactions (sender: User, transactions: Transaction[]) {
+    const storedTransactions = this.storageService.getTransactions()
+    for (const tx of transactions) {
+      let txWasStored = false
+      for (const storedTx of storedTransactions) {
+        if (tx.hash === storedTx.hash) {
+          this.updateStoredTransactionFromIncoming(storedTx, tx)
+          txWasStored = true
+          break
+        }
+      }
+      if (!txWasStored) {
+        this.validateAndStoreIncomingTransaction(storedTransactions, tx)
+      }
+    }
+  }
+
+  private updateStoredTransactionFromIncoming (storedTx: Transaction, incomingTx: Transaction) {
+    console.log('update stored from incoming', incomingTx)
+  }
+
+  private validateAndStoreIncomingTransaction (storedTransactions: Transaction[], incomingTx: Transaction) {
+    try {
+      this.validator.validate(storedTransactions, incomingTx)
+      console.info('Incoming transaction is valid', incomingTx)
+
+      this.storageService.storeTransaction(incomingTx)
+    } catch (e) {
+      console.error('Incoming transaction is invalid', e, incomingTx)
+    }
   }
 }

@@ -33,6 +33,8 @@ import { UserService } from '@/services/UserService'
 import { TransactionService } from '@/services/TransactionService'
 import { TransactionHasher } from '@/services/TransactionHasher'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
+import { Transport } from '@/services/Transport'
+import { Validator } from '@/services/Validator'
 
 @Component({
   components: {
@@ -72,10 +74,13 @@ export default class App extends Vue {
 
     const cryptoService = new CryptoService()
     const transactionHasher = new TransactionHasher(cryptoService)
-    const arrayToTransaction = new TransactionSerializer()
-    const storageService = new StorageService(this.storageNamespace, arrayToTransaction)
-    const transactionService = new TransactionService(transactionHasher)
-    this.userService = new UserService(cryptoService, storageService, transactionService)
+    const transactionSerializer = new TransactionSerializer()
+    const storageService = new StorageService(this.storageNamespace, transactionSerializer)
+    const transport = new Transport(this.connectionsPool, transactionSerializer)
+    const validator = new Validator()
+    const transactionService = new TransactionService(transactionHasher, transport, storageService, validator)
+
+    this.userService = new UserService(cryptoService, transactionService, transport)
 
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false

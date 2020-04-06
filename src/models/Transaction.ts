@@ -6,6 +6,7 @@ export class Transaction {
   public payload: TransactionPayload
   public hash: string
   public storedAt?: string
+  public signatures?: any
 
   constructor (type: TransactionType, payload: TransactionPayload, hash: string) {
     this.type = type

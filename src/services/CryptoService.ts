@@ -17,7 +17,9 @@ export class CryptoService {
   public hash (message: string): string {
     const hash = nacl.hash(util.decodeUTF8(message))
 
-    return util.encodeBase64(hash)
+    const shortHash = hash.slice(0, 32)
+
+    return util.encodeBase64(shortHash)
   }
 
   private static getPairBySeed (seed: string): SignKeyPair {

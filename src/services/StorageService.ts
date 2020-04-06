@@ -5,11 +5,11 @@ export class StorageService {
   private static STORAGE_KEY_TRANSACTIONS = 'transactions';
 
   private readonly namespace: string
-  private readonly arrayToTransaction: TransactionSerializer
+  private readonly transactionSerializer: TransactionSerializer
 
-  constructor (namespace: string, arrayToTransaction: TransactionSerializer) {
+  constructor (namespace: string, transactionSerializer: TransactionSerializer) {
     this.namespace = namespace
-    this.arrayToTransaction = arrayToTransaction
+    this.transactionSerializer = transactionSerializer
   }
 
   public storeTransaction (transaction: Transaction): boolean {
@@ -21,7 +21,13 @@ export class StorageService {
 
     const transactions = this.getTransactions()
     transactions.push(transaction)
-    localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS, JSON.stringify(transactions))
+
+    const serialized = []
+    for (const tx of transactions) {
+      serialized.push(this.transactionSerializer.transactionToData(tx))
+    }
+
+    localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS, JSON.stringify(serialized))
 
     return true
   }
@@ -51,7 +57,7 @@ export class StorageService {
     const transactions: Transaction[] = []
     for (const txData of transactionsData) {
       try {
-        transactions.push(this.arrayToTransaction.dataToTransaction(txData))
+        transactions.push(this.transactionSerializer.dataToTransaction(txData))
       } catch (e) {
         throw new Error('Restoring transaction error: ' + e.message)
       }
