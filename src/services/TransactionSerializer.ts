@@ -2,6 +2,7 @@ import { Transaction } from '@/models/Transaction'
 import { TransactionType } from '@/enums/TransactionType'
 import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
 import { TransactionPayload } from '@/types/TransactionPayload'
+import { Signature } from '@/models/Signature'
 
 export class TransactionSerializer {
   public dataToTransaction (data: any): Transaction {
@@ -35,14 +36,31 @@ export class TransactionSerializer {
         throw new Error('Unknown type: ' + type)
     }
 
-    return new Transaction(type, payload, data['h'])
+    const tx = new Transaction(type, payload, data['h'])
+
+    if (data['s']) {
+      for (const signatureData of data['s']) {
+        tx.signatures.push(new Signature(signatureData['sg'], signatureData['pk']))
+      }
+    }
+
+    return tx
   }
 
   public transactionToData (transaction: Transaction): any {
+    const signatures = []
+    for (const signature of transaction.signatures) {
+      signatures.push({
+        'sg': signature.signature,
+        'pk': signature.publicKey
+      })
+    }
+
     return {
       't': transaction.type,
       'p': transaction.payload,
-      'h': transaction.hash
+      'h': transaction.hash,
+      's': signatures
     }
   }
 

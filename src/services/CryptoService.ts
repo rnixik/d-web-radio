@@ -1,6 +1,10 @@
 import nacl, { SignKeyPair } from 'tweetnacl'
 import util from 'tweetnacl-util'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
+import { TransactionType } from '@/enums/TransactionType'
+import { TransactionPayload } from '@/types/TransactionPayload'
+import { Transaction } from '@/models/Transaction'
+import { Signature } from '@/models/Signature'
 
 export class CryptoService {
   public getUserByLoginAndPassword (login: string, password: string): AuthenticatedUser {
@@ -14,12 +18,22 @@ export class CryptoService {
     )
   }
 
-  public hash (message: string): string {
-    const hash = nacl.hash(util.decodeUTF8(message))
-
-    const shortHash = hash.slice(0, 32)
+  public calculateTransactionHash (type: TransactionType, payload: TransactionPayload): string {
+    const str = JSON.stringify([type, payload])
+    const hash = nacl.hash(util.decodeUTF8(str))
+    const shortHash = hash.slice(0, 16)
 
     return util.encodeBase64(shortHash)
+  }
+
+  public signTransaction (user: AuthenticatedUser, tx: Transaction): Transaction {
+    const signatureData = nacl.sign.detached(util.decodeBase64(tx.hash), util.decodeBase64(user.privateKey))
+    const signatureStr = util.encodeBase64(signatureData)
+    const signature = new Signature(signatureStr, user.publicKey)
+
+    tx.signatures.push(signature)
+
+    return tx
   }
 
   private static getPairBySeed (seed: string): SignKeyPair {

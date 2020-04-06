@@ -31,7 +31,6 @@ import { StorageService } from '@/services/StorageService'
 import { CryptoService } from '@/services/CryptoService'
 import { UserService } from '@/services/UserService'
 import { TransactionService } from '@/services/TransactionService'
-import { TransactionHasher } from '@/services/TransactionHasher'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
 import { Transport } from '@/services/Transport'
 import { Validator } from '@/services/Validator'
@@ -73,12 +72,11 @@ export default class App extends Vue {
     })
 
     const cryptoService = new CryptoService()
-    const transactionHasher = new TransactionHasher(cryptoService)
     const transactionSerializer = new TransactionSerializer()
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
     const transport = new Transport(this.connectionsPool, transactionSerializer)
-    const validator = new Validator()
-    const transactionService = new TransactionService(transactionHasher, transport, storageService, validator)
+    const validator = new Validator(cryptoService)
+    const transactionService = new TransactionService(cryptoService, transport, storageService, validator)
 
     this.userService = new UserService(cryptoService, transactionService, transport)
 

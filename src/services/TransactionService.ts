@@ -2,27 +2,28 @@ import { Transaction } from '@/models/Transaction'
 import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
 import { TransactionType } from '@/enums/TransactionType'
 import { User } from '@/models/User'
-import { TransactionHasher } from '@/services/TransactionHasher'
 import { Transport } from '@/services/Transport'
 import { StorageService } from '@/services/StorageService'
 import { Validator } from '@/services/Validator'
+import { AuthenticatedUser } from '@/models/AuthenticatedUser'
+import { CryptoService } from '@/services/CryptoService'
 
 export class TransactionService {
-  private transactionHasher: TransactionHasher
   private transport: Transport
   private storageService: StorageService
   private validator: Validator
+  private cryptoService: CryptoService
 
   constructor (
-    transactionHasher: TransactionHasher,
+    cryptoService: CryptoService,
     transport: Transport,
     storageService: StorageService,
     validator: Validator
   ) {
-    this.transactionHasher = transactionHasher
     this.transport = transport
     this.storageService = storageService
     this.validator = validator
+    this.cryptoService = cryptoService
 
     this.transport.addOnIncomingTransactionsCallback((sender, transactions) => {
       this.handleIncomingTransactions(sender, transactions)
@@ -31,7 +32,7 @@ export class TransactionService {
 
   public createRegistrationTransaction (publicUser: User): Transaction {
     const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
-    const hash = this.transactionHasher.calculateHash(TransactionType.UserRegistration, payload)
+    const hash = this.cryptoService.calculateTransactionHash(TransactionType.UserRegistration, payload)
 
     return new Transaction(TransactionType.UserRegistration, payload, hash)
   }
@@ -50,6 +51,12 @@ export class TransactionService {
     }
 
     return null
+  }
+
+  public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
+    const signedTx = this.cryptoService.signTransaction(sender, transaction)
+
+    this.transport.send(sender.getPublicUser(), signedTx)
   }
 
   private handleIncomingTransactions (sender: User, transactions: Transaction[]) {

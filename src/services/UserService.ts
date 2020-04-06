@@ -29,7 +29,7 @@ export class UserService {
       throw new Error('User already exists')
     }
 
-    this.transport.send(authenticatedUser, transaction)
+    this.transactionService.signAndSend(authenticatedUser, transaction)
 
     return authenticatedUser
   }
