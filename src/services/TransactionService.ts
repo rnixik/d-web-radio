@@ -7,6 +7,7 @@ import { StorageService } from '@/services/StorageService'
 import { Validator } from '@/services/Validator'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
+import { Signature } from '@/models/Signature'
 
 export class TransactionService {
   private transport: Transport
@@ -59,35 +60,50 @@ export class TransactionService {
     this.transport.send(sender.getPublicUser(), signedTx)
   }
 
-  private handleIncomingTransactions (sender: User, transactions: Transaction[]) {
+  private handleIncomingTransactions (sender: User, incomingTransactions: Transaction[]) {
     const storedTransactions = this.storageService.getTransactions()
-    for (const tx of transactions) {
+    for (const incomingTx of incomingTransactions) {
+      try {
+        this.validator.validateBase(storedTransactions, incomingTx)
+      } catch (e) {
+        console.error('Incoming transaction is invalid by base rules', e, incomingTx)
+        continue
+      }
+
       let txWasStored = false
       for (const storedTx of storedTransactions) {
-        if (tx.hash === storedTx.hash) {
-          this.updateStoredTransactionFromIncoming(storedTx, tx)
+        if (incomingTx.hash === storedTx.hash) {
+          this.updateStoredTransactionFromIncoming(storedTx, incomingTx)
           txWasStored = true
           break
         }
       }
       if (!txWasStored) {
-        this.validateAndStoreIncomingTransaction(storedTransactions, tx)
+        this.validateSpecificAndStoreIncomingTransaction(storedTransactions, incomingTx)
       }
     }
   }
 
   private updateStoredTransactionFromIncoming (storedTx: Transaction, incomingTx: Transaction) {
-    console.log('update stored from incoming', incomingTx)
+    const signatures = storedTx.signatures.concat(incomingTx.signatures)
+    const publicKeys: any = {}
+    const uniqueSignatures: Signature[] = []
+    for (const signature of signatures) {
+      if (!publicKeys[signature.publicKey]) {
+        publicKeys[signature.publicKey] = true
+        uniqueSignatures.push(signature)
+      }
+    }
+
+    this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
   }
 
-  private validateAndStoreIncomingTransaction (storedTransactions: Transaction[], incomingTx: Transaction) {
+  private validateSpecificAndStoreIncomingTransaction (storedTransactions: Transaction[], incomingTx: Transaction) {
     try {
-      this.validator.validate(storedTransactions, incomingTx)
-      console.info('Incoming transaction is valid', incomingTx)
-
+      this.validator.validateSpecific(storedTransactions, incomingTx)
       this.storageService.storeTransaction(incomingTx)
     } catch (e) {
-      console.error('Incoming transaction is invalid', e, incomingTx)
+      console.error('Incoming transaction is invalid by specific rules', e, incomingTx)
     }
   }
 }

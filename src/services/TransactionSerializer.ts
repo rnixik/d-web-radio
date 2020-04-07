@@ -5,7 +5,7 @@ import { TransactionPayload } from '@/types/TransactionPayload'
 import { Signature } from '@/models/Signature'
 
 export class TransactionSerializer {
-  public dataToTransaction (data: any): Transaction {
+  public dataToTransaction (data: any, local: boolean): Transaction {
     if (!data['t']) {
       throw new Error('Empty type')
     }
@@ -44,10 +44,14 @@ export class TransactionSerializer {
       }
     }
 
+    if (local && data['d']) {
+      tx.storedAt = data['d']
+    }
+
     return tx
   }
 
-  public transactionToData (transaction: Transaction): any {
+  public transactionToData (transaction: Transaction, local: boolean): any {
     const signatures = []
     for (const signature of transaction.signatures) {
       signatures.push({
@@ -56,12 +60,18 @@ export class TransactionSerializer {
       })
     }
 
-    return {
+    const data: any = {
       't': transaction.type,
       'p': transaction.payload,
       'h': transaction.hash,
       's': signatures
     }
+
+    if (local) {
+      data['d'] = transaction.storedAt
+    }
+
+    return data
   }
 
   private getUserRegistrationPayload (payloadData: any): UserRegistrationPayload {

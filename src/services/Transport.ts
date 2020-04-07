@@ -22,7 +22,7 @@ export class Transport {
           const sender = new User(data.login, data.publicKey)
           const transactions = []
           for (const txData of data.txsData) {
-            transactions.push(this.transactionSerializer.dataToTransaction(txData))
+            transactions.push(this.transactionSerializer.dataToTransaction(txData, false))
           }
 
           if (transactions.length) {
@@ -44,7 +44,7 @@ export class Transport {
         login: sender.login,
         publicKey: sender.publicKey
       },
-      txsData: [ this.transactionSerializer.transactionToData(transaction) ]
+      txsData: [ this.transactionSerializer.transactionToData(transaction, false) ]
     })
     this.connectionPool.sendMessage(message)
   }

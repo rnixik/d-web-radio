@@ -10,13 +10,25 @@ export class Validator {
     this.cryptoService = cryptoService
   }
 
-  public validate (storedTransactions: Transaction[], tx: Transaction) {
+  public validateBase (storedTransactions: Transaction[], tx: Transaction) {
     const hash = this.cryptoService.calculateTransactionHash(tx.type, tx.payload)
 
     if (hash !== tx.hash) {
       throw new Error('Invalid hash')
     }
 
+    if (tx.signatures.length === 0) {
+      throw new Error('No signatures')
+    }
+
+    for (const signature of tx.signatures) {
+      if (!this.cryptoService.verifySignature(tx, signature)) {
+        throw new Error('Invalid signature')
+      }
+    }
+  }
+
+  public validateSpecific (storedTransactions: Transaction[], tx: Transaction) {
     switch (tx.type) {
       case TransactionType.UserRegistration:
         this.validateUserRegistration(storedTransactions, tx)

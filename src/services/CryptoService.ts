@@ -36,6 +36,14 @@ export class CryptoService {
     return tx
   }
 
+  public verifySignature (tx: Transaction, signature: Signature): boolean {
+    return nacl.sign.detached.verify(
+      util.decodeBase64(tx.hash),
+      util.decodeBase64(signature.signature),
+      util.decodeBase64(signature.publicKey)
+    )
+  }
+
   private static getPairBySeed (seed: string): SignKeyPair {
     const seedArray = util.decodeUTF8(seed)
 

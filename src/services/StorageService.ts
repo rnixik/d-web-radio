@@ -1,5 +1,6 @@
 import { Transaction } from '@/models/Transaction'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
+import { Signature } from '@/models/Signature'
 
 export class StorageService {
   private static STORAGE_KEY_TRANSACTIONS = 'transactions';
@@ -17,19 +18,23 @@ export class StorageService {
       return false
     }
 
-    transaction.storedAt = (new Date()).toISOString()
-
     const transactions = this.getTransactions()
+    transaction.storedAt = (new Date()).toISOString()
     transactions.push(transaction)
-
-    const serialized = []
-    for (const tx of transactions) {
-      serialized.push(this.transactionSerializer.transactionToData(tx))
-    }
-
-    localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS, JSON.stringify(serialized))
+    this.storeTransactions(transactions)
 
     return true
+  }
+
+  public storeTransactionSignatures (transaction: Transaction, signatures: Signature[]): void {
+    const transactions = this.getTransactions()
+    for (let i = 0; i < transactions.length; i++) {
+      if (transactions[i].hash === transaction.hash) {
+        transactions[i].signatures = signatures
+      }
+    }
+
+    this.storeTransactions(transactions)
   }
 
   public doesTransactionExist (transaction: Transaction): boolean {
@@ -57,12 +62,21 @@ export class StorageService {
     const transactions: Transaction[] = []
     for (const txData of transactionsData) {
       try {
-        transactions.push(this.transactionSerializer.dataToTransaction(txData))
+        transactions.push(this.transactionSerializer.dataToTransaction(txData, true))
       } catch (e) {
         throw new Error('Restoring transaction error: ' + e.message)
       }
     }
 
     return transactions
+  }
+
+  private storeTransactions (transactions: Transaction[]): void {
+    const serialized = []
+    for (const tx of transactions) {
+      serialized.push(this.transactionSerializer.transactionToData(tx, true))
+    }
+
+    localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS, JSON.stringify(serialized))
   }
 }
