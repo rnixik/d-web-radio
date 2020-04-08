@@ -13,10 +13,10 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { PostedUrl } from '@/models/PostedUrl'
+import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
 @Component
 export default class PostedUrlsList extends Vue {
-  @Prop({ default: [] }) postedUrls!: PostedUrl[]
+  @Prop({ default: [] }) postedUrls!: YouTubeUrlModel[]
 }
 </script>

@@ -5,7 +5,6 @@ import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { UserService } from '@/services/UserService'
 import { Transaction } from '@/models/Transaction'
-import { PostedUrl } from '@/models/PostedUrl'
 import { YouTubeUrlExtractor } from '@/app/transactions/YouTubeUrl/YouTubeUrlExtractor'
 
 export class YouTubeRadio {
@@ -58,7 +57,7 @@ export class YouTubeRadio {
   }
 
   public extractUrlsFromTransactions (transactions: Transaction[]): YouTubeUrlModel[] {
-    const postedUrls: PostedUrl[] = []
+    const postedUrls: YouTubeUrlModel[] = []
     const extractor = new YouTubeUrlExtractor()
 
     for (const tx of transactions) {

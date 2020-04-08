@@ -6,7 +6,6 @@ import { Validator } from '@/services/Validator'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { Signature } from '@/models/Signature'
-import { PostedUrl } from '@/models/PostedUrl'
 import { TransactionPayload } from '@/types/TransactionPayload'
 
 export class TransactionService {

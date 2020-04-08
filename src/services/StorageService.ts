@@ -47,17 +47,6 @@ export class StorageService {
     this.replaceAllTransactions(transactions)
   }
 
-  public doesTransactionExist (transaction: Transaction): boolean {
-    const transactions = this.getTransactions()
-    for (const iteratedTransaction of transactions) {
-      if (iteratedTransaction.hash === transaction.hash) {
-        return true
-      }
-    }
-
-    return false
-  }
-
   public getTransactions (): Transaction[] {
     const transactionsString = localStorage.getItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS)
     if (!transactionsString) {

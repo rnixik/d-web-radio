@@ -7,8 +7,8 @@ import { TypeToValidatorMap } from '@/types/TypeToValidatorMap'
 import { UserRegistrationValidator } from '@/transactions/UserRegistration/UserRegistrationValidator'
 
 export class TransactionTypeResolver {
-  private typeToSerializerMap: TypeToSerializerMap
-  private typeToValidatorMap: TypeToValidatorMap
+  private readonly typeToSerializerMap: TypeToSerializerMap
+  private readonly typeToValidatorMap: TypeToValidatorMap
 
   constructor () {
     this.typeToSerializerMap = {}

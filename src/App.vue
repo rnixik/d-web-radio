@@ -42,13 +42,12 @@ import { TransactionSerializer } from '@/services/TransactionSerializer'
 import { Transport } from '@/services/Transport'
 import { Validator } from '@/services/Validator'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
-import { Transaction } from '@/models/Transaction'
-import { PostedUrl } from '@/models/PostedUrl'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
 import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { YouTubeUrlPayloadSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayloadSerializer'
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
+import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
 @Component({
   components: {
@@ -71,7 +70,7 @@ export default class App extends Vue {
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
-  private postedUrls: PostedUrl[] = []
+  private postedUrls: YouTubeUrlModel[] = []
 
   $refs!: {
     messages: HTMLElement
@@ -154,7 +153,7 @@ export default class App extends Vue {
     }
   }
 
-  handleNewPostedUrls (postedUrls: PostedUrl[]) {
+  handleNewPostedUrls (postedUrls: YouTubeUrlModel[]) {
     console.log('new urls', postedUrls)
     this.postedUrls = this.postedUrls.concat(postedUrls)
   }
