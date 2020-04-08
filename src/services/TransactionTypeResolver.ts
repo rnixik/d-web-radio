@@ -5,8 +5,9 @@ import { UserRegistrationTransactionType } from '@/transactions/UserRegistration
 import { SpecificValidator } from '@/types/SpecificValidator'
 import { TypeToValidatorMap } from '@/types/TypeToValidatorMap'
 import { UserRegistrationValidator } from '@/transactions/UserRegistration/UserRegistrationValidator'
+import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
 
-export class TransactionTypeResolver {
+export class TransactionTypeResolver implements TransactionTypeResolverInterface {
   private readonly typeToSerializerMap: TypeToSerializerMap
   private readonly typeToValidatorMap: TypeToValidatorMap
 
@@ -26,7 +27,7 @@ export class TransactionTypeResolver {
     throw new Error('Unregistered transaction type: ' + transactionType)
   }
 
-  public setPayloadSerializer (transactionType: string, payloadSerializer: PayloadSerializer) {
+  public setPayloadSerializer (transactionType: string, payloadSerializer: PayloadSerializer): void {
     this.typeToSerializerMap[transactionType] = payloadSerializer
   }
 
@@ -38,7 +39,7 @@ export class TransactionTypeResolver {
     throw new Error('Unregistered transaction type: ' + transactionType)
   }
 
-  public setSpecificValidator (transactionType: string, specificValidator: SpecificValidator) {
+  public setSpecificValidator (transactionType: string, specificValidator: SpecificValidator): void {
     this.typeToValidatorMap[transactionType] = specificValidator
   }
 }

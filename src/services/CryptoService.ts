@@ -4,8 +4,9 @@ import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { TransactionPayload } from '@/types/TransactionPayload'
 import { Transaction } from '@/models/Transaction'
 import { Signature } from '@/models/Signature'
+import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 
-export class CryptoService {
+export class CryptoService implements CryptoServiceInterface {
   public getUserByLoginAndPassword (login: string, password: string): AuthenticatedUser {
     let seed = password + login
     const pair = CryptoService.getPairBySeed(seed)

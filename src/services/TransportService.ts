@@ -1,13 +1,14 @@
 import { Transaction } from '@/models/Transaction'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
-import { TransactionSerializer } from '@/services/TransactionSerializer'
+import { TransportServiceInterface } from '@/types/TransportServiceInterface'
+import { TransactionSerializerInterface } from '@/types/TransactionSerializerInterface'
 
-export class Transport {
+export class TransportService implements TransportServiceInterface {
   private connectionPool: WebRtcConnectionsPool
-  private transactionSerializer: TransactionSerializer
+  private transactionSerializer: TransactionSerializerInterface
   private onIncomingTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
 
-  constructor (connectionPool: WebRtcConnectionsPool, transactionSerializer: TransactionSerializer) {
+  constructor (connectionPool: WebRtcConnectionsPool, transactionSerializer: TransactionSerializerInterface) {
     this.connectionPool = connectionPool
     this.transactionSerializer = transactionSerializer
 
@@ -35,7 +36,7 @@ export class Transport {
     })
   }
 
-  public send (transaction: Transaction) {
+  public send (transaction: Transaction): void {
     const message = JSON.stringify({
       type: 'txs',
       txsData: [ this.transactionSerializer.transactionToData(transaction, false) ]

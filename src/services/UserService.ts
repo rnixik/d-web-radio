@@ -1,16 +1,17 @@
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
-import { CryptoService } from '@/services/CryptoService'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
 import { UserRegistrationPayload } from '@/transactions/UserRegistration/UserRegistrationPayload'
 import { UserRegistrationTransactionType } from '@/transactions/UserRegistration/UserRegistrationTransactionType'
+import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
+import { UserServiceInterface } from '@/types/UserServiceInterface'
 
-export class UserService {
-  private cryptoService: CryptoService
+export class UserService implements UserServiceInterface {
+  private cryptoService: CryptoServiceInterface
   private transactionService: TransactionService
 
   constructor (
-    cryptoService: CryptoService,
+    cryptoService: CryptoServiceInterface,
     transitionService: TransactionService
   ) {
     this.cryptoService = cryptoService

@@ -39,8 +39,8 @@ import { CryptoService } from '@/services/CryptoService'
 import { UserService } from '@/services/UserService'
 import { TransactionService } from '@/services/TransactionService'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
-import { Transport } from '@/services/Transport'
-import { Validator } from '@/services/Validator'
+import { TransportService } from '@/services/TransportService'
+import { ValidatorService } from '@/services/ValidatorService'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
 import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
@@ -95,9 +95,9 @@ export default class App extends Vue {
 
     const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
-    const transport = new Transport(this.connectionsPool, transactionSerializer)
-    const validator = new Validator(cryptoService, transactionTypeResolver)
-    const transactionService = new TransactionService(cryptoService, transport, storageService, validator)
+    const transportService = new TransportService(this.connectionsPool, transactionSerializer)
+    const validatorService = new ValidatorService(cryptoService, transactionTypeResolver)
+    const transactionService = new TransactionService(cryptoService, transportService, storageService, validatorService)
 
     this.userService = new UserService(cryptoService, transactionService)
     this.youTubeRadio = new YouTubeRadio(transactionService, this.userService)

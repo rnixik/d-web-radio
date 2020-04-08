@@ -1,17 +1,18 @@
 import { Transaction } from '@/models/Transaction'
-import { CryptoService } from '@/services/CryptoService'
-import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
+import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
+import { ValidatorServiceInterface } from '@/types/ValidatorServiceInterface'
+import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
 
-export class Validator {
-  private cryptoService: CryptoService
-  private transactionTypeResolver: TransactionTypeResolver
+export class ValidatorService implements ValidatorServiceInterface {
+  private cryptoService: CryptoServiceInterface
+  private transactionTypeResolver: TransactionTypeResolverInterface
 
-  constructor (cryptoService: CryptoService, transactionTypeResolver: TransactionTypeResolver) {
+  constructor (cryptoService: CryptoServiceInterface, transactionTypeResolver: TransactionTypeResolverInterface) {
     this.cryptoService = cryptoService
     this.transactionTypeResolver = transactionTypeResolver
   }
 
-  public validateBase (storedTransactions: Transaction[], tx: Transaction) {
+  public validateBase (storedTransactions: Transaction[], tx: Transaction): void {
     const hash = this.cryptoService.calculateTransactionHash(tx.type, tx.payload)
 
     if (hash !== tx.hash) {
@@ -33,7 +34,7 @@ export class Validator {
     }
   }
 
-  public validateSpecific (storedTransactions: Transaction[], tx: Transaction) {
+  public validateSpecific (storedTransactions: Transaction[], tx: Transaction): void {
     const specificValidator = this.transactionTypeResolver.getSpecificValidator(tx.type)
     specificValidator.validate(storedTransactions, tx)
   }

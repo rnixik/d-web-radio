@@ -3,16 +3,16 @@ import { TransactionService } from '@/services/TransactionService'
 import { YouTubeUrlPayload } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayload'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
-import { UserService } from '@/services/UserService'
 import { Transaction } from '@/models/Transaction'
 import { YouTubeUrlExtractor } from '@/app/transactions/YouTubeUrl/YouTubeUrlExtractor'
+import { UserServiceInterface } from '@/types/UserServiceInterface'
 
 export class YouTubeRadio {
   private readonly transactionService: TransactionService
-  private readonly userService: UserService
+  private readonly userService: UserServiceInterface
   private onNewPostedUrlsCallbacks: ((urls: YouTubeUrlModel[]) => void)[] = []
 
-  constructor (transactionService: TransactionService, userService: UserService) {
+  constructor (transactionService: TransactionService, userService: UserServiceInterface) {
     this.transactionService = transactionService
     this.userService = userService
 

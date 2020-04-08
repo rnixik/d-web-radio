@@ -1,12 +1,13 @@
 import { Transaction } from '@/models/Transaction'
 import { TransactionPayload } from '@/types/TransactionPayload'
 import { Signature } from '@/models/Signature'
-import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
+import { TransactionSerializerInterface } from '@/types/TransactionSerializerInterface'
+import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
 
-export class TransactionSerializer {
-  private readonly transactionTypeResolver: TransactionTypeResolver
+export class TransactionSerializer implements TransactionSerializerInterface {
+  private readonly transactionTypeResolver: TransactionTypeResolverInterface
 
-  constructor (transactionTypeResolver: TransactionTypeResolver) {
+  constructor (transactionTypeResolver: TransactionTypeResolverInterface) {
     this.transactionTypeResolver = transactionTypeResolver
   }
 

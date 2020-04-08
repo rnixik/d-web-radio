@@ -1,14 +1,15 @@
 import { Transaction } from '@/models/Transaction'
-import { TransactionSerializer } from '@/services/TransactionSerializer'
 import { Signature } from '@/models/Signature'
+import { StorageServiceInterface } from '@/types/StorageServiceInterface'
+import { TransactionSerializerInterface } from '@/types/TransactionSerializerInterface'
 
-export class StorageService {
+export class StorageService implements StorageServiceInterface {
   private static STORAGE_KEY_TRANSACTIONS = 'transactions';
 
   private readonly namespace: string
-  private readonly transactionSerializer: TransactionSerializer
+  private readonly transactionSerializer: TransactionSerializerInterface
 
-  constructor (namespace: string, transactionSerializer: TransactionSerializer) {
+  constructor (namespace: string, transactionSerializer: TransactionSerializerInterface) {
     this.namespace = namespace
     this.transactionSerializer = transactionSerializer
   }
