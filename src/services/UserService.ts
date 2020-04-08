@@ -2,21 +2,17 @@ import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
-import { Transport } from '@/services/Transport'
 
 export class UserService {
   private cryptoService: CryptoService
   private transactionService: TransactionService
-  private transport: Transport
 
   constructor (
     cryptoService: CryptoService,
-    transitionService: TransactionService,
-    transport: Transport
+    transitionService: TransactionService
   ) {
     this.cryptoService = cryptoService
     this.transactionService = transitionService
-    this.transport = transport
   }
 
   public register (login: string, password: string): AuthenticatedUser {

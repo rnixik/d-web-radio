@@ -3,6 +3,7 @@ import { TransactionType } from '@/enums/TransactionType'
 import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
 import { TransactionPayload } from '@/types/TransactionPayload'
 import { Signature } from '@/models/Signature'
+import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
 
 export class TransactionSerializer {
   public dataToTransaction (data: any, local: boolean): Transaction {
@@ -34,7 +35,10 @@ export class TransactionSerializer {
 
     switch (type) {
       case TransactionType.UserRegistration:
-        payload = this.getUserRegistrationPayload(data['p'])
+        payload = new UserRegistrationPayload(data['p']['login'], data['p']['publicKey'])
+        break
+      case TransactionType.PostUrl:
+        payload = new PostUrlPayload(data['p']['url'])
         break
       default:
         throw new Error('Unknown type: ' + type)
@@ -77,9 +81,5 @@ export class TransactionSerializer {
     }
 
     return data
-  }
-
-  private getUserRegistrationPayload (payloadData: any): UserRegistrationPayload {
-    return new UserRegistrationPayload(payloadData['login'], payloadData['publicKey'])
   }
 }

@@ -8,6 +8,7 @@ import { Validator } from '@/services/Validator'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { Signature } from '@/models/Signature'
+import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
 
 export class TransactionService {
   private transport: Transport
@@ -38,6 +39,13 @@ export class TransactionService {
     return new Transaction(publicUser.publicKey, TransactionType.UserRegistration, payload, hash)
   }
 
+  public createPostUrlTransaction (publicUser: User, url: string): Transaction {
+    const payload = new PostUrlPayload(url)
+    const hash = this.cryptoService.calculateTransactionHash(TransactionType.PostUrl, payload)
+
+    return new Transaction(publicUser.publicKey, TransactionType.PostUrl, payload, hash)
+  }
+
   public getUserByPublicKey (publicKey: string): User | null {
     const storedTransactions = this.storageService.getTransactions()
 
@@ -52,6 +60,19 @@ export class TransactionService {
     }
 
     return null
+  }
+
+  public getPostUrlTransactions (): Transaction[] {
+    const storedTransactions = this.storageService.getTransactions()
+    const postUrlTransactions: Transaction[] = []
+
+    for (const tx of storedTransactions) {
+      if (tx.type === TransactionType.PostUrl) {
+        postUrlTransactions.push(tx)
+      }
+    }
+
+    return postUrlTransactions
   }
 
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {

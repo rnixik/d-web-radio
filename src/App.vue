@@ -26,7 +26,6 @@ import LocalSignaling from './components/LocalSignaling.vue'
 import ManualSignaling from './components/ManualSignaling.vue'
 import SocketsSignaling from './components/SocketsSignaling.vue'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
-import { Url } from './messages/Url'
 import { StorageService } from '@/services/StorageService'
 import { CryptoService } from '@/services/CryptoService'
 import { UserService } from '@/services/UserService'
@@ -34,6 +33,8 @@ import { TransactionService } from '@/services/TransactionService'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
 import { Transport } from '@/services/Transport'
 import { Validator } from '@/services/Validator'
+import { UrlService } from '@/services/UrlService'
+import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 
 @Component({
   components: {
@@ -53,6 +54,8 @@ export default class App extends Vue {
   private publicKey = ''
   private authErrorMessage = ''
   private userService?: UserService
+  private urlService?: UrlService
+  private authenticatedUser?: AuthenticatedUser
   private storageNamespace: string = 'webrtc_dapp'
 
   $refs!: {
@@ -78,7 +81,8 @@ export default class App extends Vue {
     const validator = new Validator(cryptoService)
     const transactionService = new TransactionService(cryptoService, transport, storageService, validator)
 
-    this.userService = new UserService(cryptoService, transactionService, transport)
+    this.userService = new UserService(cryptoService, transactionService)
+    this.urlService = new UrlService(transactionService)
 
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
@@ -94,13 +98,11 @@ export default class App extends Vue {
   }
 
   addUrl () {
-    if (!this.connectionsPool || !this.url) {
+    if (!this.connectionsPool || !this.url || !this.urlService || !this.authenticatedUser) {
       return
     }
 
-    const urlMessage = new Url(this.url)
-
-    this.connectionsPool.sendMessage(urlMessage.toJson())
+    this.urlService.postUrl(this.authenticatedUser, this.url)
     this.url = ''
   }
 
@@ -111,8 +113,8 @@ export default class App extends Vue {
     this.authErrorMessage = ''
 
     try {
-      const authenticatedUser = this.userService.register(this.login, this.password)
-      this.publicKey = authenticatedUser.login + '|' + authenticatedUser.publicKey
+      this.authenticatedUser = this.userService.register(this.login, this.password)
+      this.publicKey = this.authenticatedUser.login + '|' + this.authenticatedUser.publicKey
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
