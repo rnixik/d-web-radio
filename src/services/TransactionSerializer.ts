@@ -1,11 +1,15 @@
 import { Transaction } from '@/models/Transaction'
-import { TransactionType } from '@/enums/TransactionType'
-import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
 import { TransactionPayload } from '@/types/TransactionPayload'
 import { Signature } from '@/models/Signature'
-import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
+import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
 
 export class TransactionSerializer {
+  private readonly transactionTypeResolver: TransactionTypeResolver
+
+  constructor (transactionTypeResolver: TransactionTypeResolver) {
+    this.transactionTypeResolver = transactionTypeResolver
+  }
+
   public dataToTransaction (data: any, local: boolean): Transaction {
     if (!data['k']) {
       throw new Error('Empty creator public key')
@@ -23,26 +27,10 @@ export class TransactionSerializer {
       throw new Error('Empty hash')
     }
 
-    let type: TransactionType
+    const type: string = data['t']
 
-    try {
-      type = data['t'] as TransactionType
-    } catch (e) {
-      throw new Error('Cannot cast type ' + data['t'] + ': ' + e.toString())
-    }
-
-    let payload: TransactionPayload
-
-    switch (type) {
-      case TransactionType.UserRegistration:
-        payload = new UserRegistrationPayload(data['p']['login'], data['p']['publicKey'])
-        break
-      case TransactionType.PostUrl:
-        payload = new PostUrlPayload(data['p']['url'])
-        break
-      default:
-        throw new Error('Unknown type: ' + type)
-    }
+    const payloadSerializer = this.transactionTypeResolver.getPayloadSerializer(type)
+    const payload: TransactionPayload = payloadSerializer.fromDataToPayload(data['p'])
 
     const tx = new Transaction(data['k'], type, payload, data['h'])
 
@@ -68,10 +56,12 @@ export class TransactionSerializer {
       })
     }
 
+    const payloadSerializer = this.transactionTypeResolver.getPayloadSerializer(transaction.type)
+
     const data: any = {
       'k': transaction.creatorPublicKey,
       't': transaction.type,
-      'p': transaction.payload,
+      'p': payloadSerializer.payloadToData(transaction.payload),
       'h': transaction.hash,
       's': signatures
     }

@@ -41,10 +41,14 @@ import { TransactionService } from '@/services/TransactionService'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
 import { Transport } from '@/services/Transport'
 import { Validator } from '@/services/Validator'
-import { UrlService } from '@/services/UrlService'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { Transaction } from '@/models/Transaction'
 import { PostedUrl } from '@/models/PostedUrl'
+import { YouTubeRadio } from '@/app/YouTubeRadio'
+import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
+import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
+import { YouTubeUrlPayloadSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayloadSerializer'
+import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 
 @Component({
   components: {
@@ -64,7 +68,7 @@ export default class App extends Vue {
   private password = ''
   private authErrorMessage = ''
   private userService?: UserService
-  private urlService?: UrlService
+  private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: PostedUrl[] = []
@@ -86,18 +90,21 @@ export default class App extends Vue {
     })
 
     const cryptoService = new CryptoService()
-    const transactionSerializer = new TransactionSerializer()
+    const transactionTypeResolver = new TransactionTypeResolver()
+    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlPayloadSerializer())
+    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, new YouTubeUrlValidator())
+
+    const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
     const transport = new Transport(this.connectionsPool, transactionSerializer)
-    const validator = new Validator(cryptoService)
+    const validator = new Validator(cryptoService, transactionTypeResolver)
     const transactionService = new TransactionService(cryptoService, transport, storageService, validator)
-    transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
-    transactionService.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     this.userService = new UserService(cryptoService, transactionService)
-    this.urlService = new UrlService(transactionService)
+    this.youTubeRadio = new YouTubeRadio(transactionService, this.userService)
+    this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
-    this.postedUrls = transactionService.getPostedUrls()
+    this.postedUrls = this.youTubeRadio.getPostedUrls()
 
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
@@ -113,11 +120,11 @@ export default class App extends Vue {
   }
 
   addUrl () {
-    if (!this.connectionsPool || !this.url || !this.urlService || !this.authenticatedUser) {
+    if (!this.connectionsPool || !this.url || !this.youTubeRadio || !this.authenticatedUser) {
       return
     }
 
-    this.urlService.postUrl(this.authenticatedUser, this.url)
+    this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
     this.url = ''
   }
 
@@ -145,10 +152,6 @@ export default class App extends Vue {
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
-  }
-
-  handleNewTransactions (transactions: Transaction[]) {
-    console.log('new transactions', transactions)
   }
 
   handleNewPostedUrls (postedUrls: PostedUrl[]) {

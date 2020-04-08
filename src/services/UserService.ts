@@ -2,6 +2,8 @@ import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
+import { UserRegistrationPayload } from '@/transactions/UserRegistration/UserRegistrationPayload'
+import { UserRegistrationTransactionType } from '@/transactions/UserRegistration/UserRegistrationTransactionType'
 
 export class UserService {
   private cryptoService: CryptoService
@@ -19,7 +21,8 @@ export class UserService {
     const authenticatedUser = this.cryptoService.getUserByLoginAndPassword(login, password)
     const publicUser = authenticatedUser.getPublicUser()
 
-    const transaction = this.transactionService.createRegistrationTransaction(publicUser)
+    const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
+    const transaction = this.transactionService.createTransaction(publicUser, UserRegistrationTransactionType.t, payload)
 
     if (this.getUserByPublicKey(publicUser.publicKey)) {
       throw new Error('User already exists')
@@ -40,7 +43,19 @@ export class UserService {
     return authenticatedUser
   }
 
-  private getUserByPublicKey (publicKey: string): User | null {
-    return this.transactionService.getUserByPublicKey(publicKey)
+  public getUserByPublicKey (publicKey: string): User | null {
+    const storedTransactions = this.transactionService.getTransactions()
+
+    for (const tx of storedTransactions) {
+      if (tx.type !== UserRegistrationTransactionType.t) {
+        continue
+      }
+      const payload = tx.payload as UserRegistrationPayload
+      if (payload.publicKey === publicKey) {
+        return new User(payload.login, payload.publicKey)
+      }
+    }
+
+    return null
   }
 }

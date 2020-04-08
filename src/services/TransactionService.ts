@@ -1,6 +1,4 @@
 import { Transaction } from '@/models/Transaction'
-import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
-import { TransactionType } from '@/enums/TransactionType'
 import { User } from '@/models/User'
 import { Transport } from '@/services/Transport'
 import { StorageService } from '@/services/StorageService'
@@ -8,9 +6,8 @@ import { Validator } from '@/services/Validator'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { Signature } from '@/models/Signature'
-import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
 import { PostedUrl } from '@/models/PostedUrl'
-import { TransactionToPostedUrl } from '@/services/TransactionExtractors/TransactionToPostedUrl'
+import { TransactionPayload } from '@/types/TransactionPayload'
 
 export class TransactionService {
   private transport: Transport
@@ -18,7 +15,6 @@ export class TransactionService {
   private validator: Validator
   private cryptoService: CryptoService
   private onNewTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
-  private onNewPostedUrlsCallbacks: ((urls: PostedUrl[]) => void)[] = []
 
   constructor (
     cryptoService: CryptoService,
@@ -36,39 +32,14 @@ export class TransactionService {
     })
   }
 
-  public createRegistrationTransaction (publicUser: User): Transaction {
-    const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
-    const hash = this.cryptoService.calculateTransactionHash(TransactionType.UserRegistration, payload)
+  public createTransaction (creator: User, type: string, payload: TransactionPayload): Transaction {
+    const hash = this.cryptoService.calculateTransactionHash(type, payload)
 
-    return new Transaction(publicUser.publicKey, TransactionType.UserRegistration, payload, hash)
+    return new Transaction(creator.publicKey, type, payload, hash)
   }
 
-  public createPostUrlTransaction (publicUser: User, url: string): Transaction {
-    const payload = new PostUrlPayload(url)
-    const hash = this.cryptoService.calculateTransactionHash(TransactionType.PostUrl, payload)
-
-    return new Transaction(publicUser.publicKey, TransactionType.PostUrl, payload, hash)
-  }
-
-  public getUserByPublicKey (publicKey: string): User | null {
-    const storedTransactions = this.storageService.getTransactions()
-
-    for (const tx of storedTransactions) {
-      if (tx.type !== TransactionType.UserRegistration) {
-        continue
-      }
-      const payload = tx.payload as UserRegistrationPayload
-      if (payload.publicKey === publicKey) {
-        return new User(payload.login, payload.publicKey)
-      }
-    }
-
-    return null
-  }
-
-  public getPostedUrls (): PostedUrl[] {
-    const storedTransactions = this.storageService.getTransactions()
-    return this.extractPostedUrlsFromTransactions(storedTransactions)
+  public getTransactions (): Transaction[] {
+    return this.storageService.getTransactions()
   }
 
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
@@ -79,10 +50,6 @@ export class TransactionService {
 
   public addOnNewTransactionsCallback (callback: (transactions: Transaction[]) => void) {
     this.onNewTransactionsCallbacks.push(callback)
-  }
-
-  public addOnNewPostedUrlsCallback (callback: (urls: PostedUrl[]) => void) {
-    this.onNewPostedUrlsCallbacks.push(callback)
   }
 
   private handleIncomingTransactions (incomingTransactions: Transaction[]) {
@@ -141,31 +108,5 @@ export class TransactionService {
     for (const callback of this.onNewTransactionsCallbacks) {
       callback(transactions)
     }
-
-    const newPostedUrls = this.extractPostedUrlsFromTransactions(transactions)
-    if (newPostedUrls.length) {
-      for (const callback of this.onNewPostedUrlsCallbacks) {
-        callback(newPostedUrls)
-      }
-    }
-  }
-
-  private extractPostedUrlsFromTransactions (transactions: Transaction[]): PostedUrl[] {
-    const postedUrls: PostedUrl[] = []
-    const extractor = new TransactionToPostedUrl()
-
-    for (const tx of transactions) {
-      const creator = this.getUserByPublicKey(tx.creatorPublicKey)
-      if (!creator) {
-        console.error('Cannot find creator of transaction: ' + tx.creatorPublicKey)
-        continue
-      }
-      if (tx.type === TransactionType.PostUrl) {
-        const postedUrl = extractor.extract(tx, creator)
-        postedUrls.push(postedUrl)
-      }
-    }
-
-    return postedUrls
   }
 }

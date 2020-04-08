@@ -1,14 +1,14 @@
 import { Transaction } from '@/models/Transaction'
-import { TransactionType } from '@/enums/TransactionType'
-import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
 import { CryptoService } from '@/services/CryptoService'
-import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
+import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
 
 export class Validator {
   private cryptoService: CryptoService
+  private transactionTypeResolver: TransactionTypeResolver
 
-  constructor (cryptoService: CryptoService) {
+  constructor (cryptoService: CryptoService, transactionTypeResolver: TransactionTypeResolver) {
     this.cryptoService = cryptoService
+    this.transactionTypeResolver = transactionTypeResolver
   }
 
   public validateBase (storedTransactions: Transaction[], tx: Transaction) {
@@ -34,39 +34,7 @@ export class Validator {
   }
 
   public validateSpecific (storedTransactions: Transaction[], tx: Transaction) {
-    switch (tx.type) {
-      case TransactionType.UserRegistration:
-        this.validateUserRegistration(storedTransactions, tx)
-        break
-      case TransactionType.PostUrl:
-        this.validatePostUrl(storedTransactions, tx)
-        break
-    }
-  }
-
-  private validateUserRegistration (storedTransactions: Transaction[], tx: Transaction) {
-    for (const storedTx of storedTransactions) {
-      if (storedTx.type !== TransactionType.UserRegistration) {
-        continue
-      }
-      const storedPayload = storedTx.payload as UserRegistrationPayload
-      const payload = tx.payload as UserRegistrationPayload
-      if (storedPayload.publicKey === payload.publicKey) {
-        throw new Error('User already registered')
-      }
-    }
-  }
-
-  private validatePostUrl (storedTransactions: Transaction[], tx: Transaction) {
-    for (const storedTx of storedTransactions) {
-      if (storedTx.type !== TransactionType.PostUrl) {
-        continue
-      }
-      const storedPayload = storedTx.payload as PostUrlPayload
-      const payload = tx.payload as PostUrlPayload
-      if (storedPayload.url === payload.url) {
-        throw new Error('Url already posted')
-      }
-    }
+    const specificValidator = this.transactionTypeResolver.getSpecificValidator(tx.type)
+    specificValidator.validate(storedTransactions, tx)
   }
 }

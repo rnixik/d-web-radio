@@ -1,6 +1,5 @@
-import { UserRegistrationPayload } from '@/models/TransactionPayloads/UserRegistrationPayload'
-import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
+import { PayloadSerializer } from '@/types/PayloadSerializer'
 
-type TransactionPayload = UserRegistrationPayload | PostUrlPayload
-
-export { TransactionPayload }
+export interface TransactionPayload {
+  getSerializer(): PayloadSerializer
+}

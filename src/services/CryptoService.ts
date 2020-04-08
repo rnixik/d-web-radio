@@ -1,7 +1,6 @@
 import nacl, { SignKeyPair } from 'tweetnacl'
 import util from 'tweetnacl-util'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
-import { TransactionType } from '@/enums/TransactionType'
 import { TransactionPayload } from '@/types/TransactionPayload'
 import { Transaction } from '@/models/Transaction'
 import { Signature } from '@/models/Signature'
@@ -18,7 +17,7 @@ export class CryptoService {
     )
   }
 
-  public calculateTransactionHash (type: TransactionType, payload: TransactionPayload): string {
+  public calculateTransactionHash (type: string, payload: TransactionPayload): string {
     const str = JSON.stringify([type, payload])
     const hash = nacl.hash(util.decodeUTF8(str))
     const shortHash = hash.slice(0, 16)
