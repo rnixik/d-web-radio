@@ -38,6 +38,8 @@ import { Transport } from '@/services/Transport'
 import { Validator } from '@/services/Validator'
 import { UrlService } from '@/services/UrlService'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
+import { Transaction } from '@/models/Transaction'
+import { PostedUrl } from '@/models/PostedUrl'
 
 @Component({
   components: {
@@ -82,6 +84,8 @@ export default class App extends Vue {
     const transport = new Transport(this.connectionsPool, transactionSerializer)
     const validator = new Validator(cryptoService)
     const transactionService = new TransactionService(cryptoService, transport, storageService, validator)
+    transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
+    transactionService.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     this.userService = new UserService(cryptoService, transactionService)
     this.urlService = new UrlService(transactionService)
@@ -132,6 +136,14 @@ export default class App extends Vue {
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
+  }
+
+  handleNewTransactions (transactions: Transaction[]) {
+    console.log('new transactions', transactions)
+  }
+
+  handleNewPostedUrls (postedUrls: PostedUrl[]) {
+    console.log('new urls', postedUrls)
   }
 }
 </script>

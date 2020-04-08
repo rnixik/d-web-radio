@@ -9,12 +9,15 @@ import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { CryptoService } from '@/services/CryptoService'
 import { Signature } from '@/models/Signature'
 import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
+import { PostedUrl } from '@/models/PostedUrl'
 
 export class TransactionService {
   private transport: Transport
   private storageService: StorageService
   private validator: Validator
   private cryptoService: CryptoService
+  private onNewTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
+  private onNewPostedUrlsCallbacks: ((urls: PostedUrl[]) => void)[] = []
 
   constructor (
     cryptoService: CryptoService,
@@ -81,8 +84,18 @@ export class TransactionService {
     this.transport.send(signedTx)
   }
 
+  public addOnNewTransactionsCallback (callback: (transactions: Transaction[]) => void) {
+    this.onNewTransactionsCallbacks.push(callback)
+  }
+
+  public addOnNewPostedUrlsCallback (callback: (urls: PostedUrl[]) => void) {
+    this.onNewPostedUrlsCallbacks.push(callback)
+  }
+
   private handleIncomingTransactions (incomingTransactions: Transaction[]) {
     const storedTransactions = this.storageService.getTransactions()
+    const transactionsToStore: Transaction[] = []
+
     for (const incomingTx of incomingTransactions) {
       try {
         this.validator.validateBase(storedTransactions, incomingTx)
@@ -100,7 +113,19 @@ export class TransactionService {
         }
       }
       if (!txWasStored) {
-        this.validateSpecificAndStoreIncomingTransaction(storedTransactions, incomingTx)
+        try {
+          this.validator.validateSpecific(storedTransactions, incomingTx)
+          transactionsToStore.push(incomingTx)
+        } catch (e) {
+          console.error('Incoming transaction is invalid by specific rules', e, incomingTx)
+        }
+      }
+    }
+
+    if (transactionsToStore.length) {
+      const newStoredTransactions = this.storageService.storeTransactions(transactionsToStore)
+      if (newStoredTransactions.length) {
+        this.notifyContextAboutNewTransactions(newStoredTransactions)
       }
     }
   }
@@ -119,12 +144,29 @@ export class TransactionService {
     this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
   }
 
-  private validateSpecificAndStoreIncomingTransaction (storedTransactions: Transaction[], incomingTx: Transaction) {
-    try {
-      this.validator.validateSpecific(storedTransactions, incomingTx)
-      this.storageService.storeTransaction(incomingTx)
-    } catch (e) {
-      console.error('Incoming transaction is invalid by specific rules', e, incomingTx)
+  private notifyContextAboutNewTransactions (transactions: Transaction[]) {
+    for (const callback of this.onNewTransactionsCallbacks) {
+      callback(transactions)
+    }
+
+    const newPostedUrls: PostedUrl[] = []
+    for (const tx of transactions) {
+      if (tx.type === TransactionType.PostUrl) {
+        const payload = tx.payload as PostUrlPayload
+        const creator = this.getUserByPublicKey(tx.creatorPublicKey)
+        if (!creator) {
+          console.error('Cannot find creator of transaction: ' + tx.creatorPublicKey)
+          continue
+        }
+        const url = new PostedUrl(payload.url, creator)
+        newPostedUrls.push(url)
+      }
+    }
+
+    if (newPostedUrls.length) {
+      for (const callback of this.onNewPostedUrlsCallbacks) {
+        callback(newPostedUrls)
+      }
     }
   }
 }

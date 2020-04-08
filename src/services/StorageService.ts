@@ -13,17 +13,27 @@ export class StorageService {
     this.transactionSerializer = transactionSerializer
   }
 
-  public storeTransaction (transaction: Transaction): boolean {
-    if (this.doesTransactionExist(transaction)) {
-      return false
+  public storeTransactions (transactions: Transaction[]): Transaction[] {
+    const storedTransactions = this.getTransactions()
+    let storedHashIndex = new Map()
+    for (const tx of storedTransactions) {
+      storedHashIndex.set(tx.hash, true)
     }
 
-    const transactions = this.getTransactions()
-    transaction.storedAt = (new Date()).toISOString()
-    transactions.push(transaction)
-    this.storeTransactions(transactions)
+    const transactionsToStore = storedTransactions
+    const newStored: Transaction[] = []
 
-    return true
+    for (const tx of transactions) {
+      if (!storedHashIndex.has(tx.hash)) {
+        tx.storedAt = (new Date()).toISOString()
+        transactionsToStore.push(tx)
+        newStored.push(tx)
+      }
+    }
+
+    this.replaceAllTransactions(transactionsToStore)
+
+    return newStored
   }
 
   public storeTransactionSignatures (transaction: Transaction, signatures: Signature[]): void {
@@ -34,7 +44,7 @@ export class StorageService {
       }
     }
 
-    this.storeTransactions(transactions)
+    this.replaceAllTransactions(transactions)
   }
 
   public doesTransactionExist (transaction: Transaction): boolean {
@@ -71,7 +81,7 @@ export class StorageService {
     return transactions
   }
 
-  private storeTransactions (transactions: Transaction[]): void {
+  private replaceAllTransactions (transactions: Transaction[]): void {
     const serialized = []
     for (const tx of transactions) {
       serialized.push(this.transactionSerializer.transactionToData(tx, true))

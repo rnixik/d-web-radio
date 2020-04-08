@@ -1,7 +1,7 @@
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
-import { Url } from '@/models/Url'
+import { PostedUrl } from '@/models/PostedUrl'
 import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
 
 export class UrlService {
@@ -11,7 +11,7 @@ export class UrlService {
     this.transactionService = transitionService
   }
 
-  public postUrl (authenticatedUser: AuthenticatedUser, url: string): Url {
+  public postUrl (authenticatedUser: AuthenticatedUser, url: string): PostedUrl {
     const publicUser = authenticatedUser.getPublicUser()
     const storedUrls = this.transactionService.getPostUrlTransactions()
     for (const storedTx of storedUrls) {
@@ -23,7 +23,7 @@ export class UrlService {
     const transaction = this.transactionService.createPostUrlTransaction(publicUser, url)
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
-    return new Url(url)
+    return new PostedUrl(url, publicUser)
   }
 
   private getUserByPublicKey (publicKey: string): User | null {
