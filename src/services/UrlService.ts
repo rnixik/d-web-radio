@@ -13,9 +13,9 @@ export class UrlService {
 
   public postUrl (authenticatedUser: AuthenticatedUser, url: string): PostedUrl {
     const publicUser = authenticatedUser.getPublicUser()
-    const storedUrls = this.transactionService.getPostUrlTransactions()
-    for (const storedTx of storedUrls) {
-      if ((storedTx.payload as PostUrlPayload).url === url) {
+    const storedPostedUrls = this.transactionService.getPostedUrls()
+    for (const storedPostedUrl of storedPostedUrls) {
+      if (storedPostedUrl.url === url) {
         throw new Error('Url already posted')
       }
     }

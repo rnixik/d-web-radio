@@ -20,6 +20,10 @@
     <button @click="register">Register</button>
     <button @click="signin">Login</button>
     {{ authErrorMessage }}
+
+    <div>
+      <posted-urls-list :posted-urls="postedUrls"></posted-urls-list>
+    </div>
   </div>
 </template>
 
@@ -28,6 +32,7 @@ import { Component, Vue } from 'vue-property-decorator'
 import LocalSignaling from './components/LocalSignaling.vue'
 import ManualSignaling from './components/ManualSignaling.vue'
 import SocketsSignaling from './components/SocketsSignaling.vue'
+import PostedUrlsList from './components/PostedUrlsList.vue'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
 import { StorageService } from '@/services/StorageService'
 import { CryptoService } from '@/services/CryptoService'
@@ -45,7 +50,8 @@ import { PostedUrl } from '@/models/PostedUrl'
   components: {
     LocalSignaling,
     ManualSignaling,
-    SocketsSignaling
+    SocketsSignaling,
+    PostedUrlsList
   }
 })
 export default class App extends Vue {
@@ -61,6 +67,7 @@ export default class App extends Vue {
   private urlService?: UrlService
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
+  private postedUrls: PostedUrl[] = []
 
   $refs!: {
     messages: HTMLElement
@@ -89,6 +96,8 @@ export default class App extends Vue {
 
     this.userService = new UserService(cryptoService, transactionService)
     this.urlService = new UrlService(transactionService)
+
+    this.postedUrls = transactionService.getPostedUrls()
 
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
@@ -144,6 +153,7 @@ export default class App extends Vue {
 
   handleNewPostedUrls (postedUrls: PostedUrl[]) {
     console.log('new urls', postedUrls)
+    this.postedUrls = this.postedUrls.concat(postedUrls)
   }
 }
 </script>

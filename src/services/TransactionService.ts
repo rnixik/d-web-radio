@@ -10,6 +10,7 @@ import { CryptoService } from '@/services/CryptoService'
 import { Signature } from '@/models/Signature'
 import { PostUrlPayload } from '@/models/TransactionPayloads/PostUrlPayload'
 import { PostedUrl } from '@/models/PostedUrl'
+import { TransactionToPostedUrl } from '@/services/TransactionExtractors/TransactionToPostedUrl'
 
 export class TransactionService {
   private transport: Transport
@@ -65,17 +66,9 @@ export class TransactionService {
     return null
   }
 
-  public getPostUrlTransactions (): Transaction[] {
+  public getPostedUrls (): PostedUrl[] {
     const storedTransactions = this.storageService.getTransactions()
-    const postUrlTransactions: Transaction[] = []
-
-    for (const tx of storedTransactions) {
-      if (tx.type === TransactionType.PostUrl) {
-        postUrlTransactions.push(tx)
-      }
-    }
-
-    return postUrlTransactions
+    return this.extractPostedUrlsFromTransactions(storedTransactions)
   }
 
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
@@ -149,24 +142,30 @@ export class TransactionService {
       callback(transactions)
     }
 
-    const newPostedUrls: PostedUrl[] = []
-    for (const tx of transactions) {
-      if (tx.type === TransactionType.PostUrl) {
-        const payload = tx.payload as PostUrlPayload
-        const creator = this.getUserByPublicKey(tx.creatorPublicKey)
-        if (!creator) {
-          console.error('Cannot find creator of transaction: ' + tx.creatorPublicKey)
-          continue
-        }
-        const url = new PostedUrl(payload.url, creator)
-        newPostedUrls.push(url)
-      }
-    }
-
+    const newPostedUrls = this.extractPostedUrlsFromTransactions(transactions)
     if (newPostedUrls.length) {
       for (const callback of this.onNewPostedUrlsCallbacks) {
         callback(newPostedUrls)
       }
     }
+  }
+
+  private extractPostedUrlsFromTransactions (transactions: Transaction[]): PostedUrl[] {
+    const postedUrls: PostedUrl[] = []
+    const extractor = new TransactionToPostedUrl()
+
+    for (const tx of transactions) {
+      const creator = this.getUserByPublicKey(tx.creatorPublicKey)
+      if (!creator) {
+        console.error('Cannot find creator of transaction: ' + tx.creatorPublicKey)
+        continue
+      }
+      if (tx.type === TransactionType.PostUrl) {
+        const postedUrl = extractor.extract(tx, creator)
+        postedUrls.push(postedUrl)
+      }
+    }
+
+    return postedUrls
   }
 }
