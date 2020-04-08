@@ -14,8 +14,11 @@
     <br>
     Login: <input v-model="login"><br>
     Password: <input v-model="password"><br>
-    Public key: {{ publicKey }}<br>
+    <div v-if="authenticatedUser">
+      User: {{ authenticatedUser.login }} - {{ authenticatedUser.publicKey}} <br>
+    </div>
     <button @click="register">Register</button>
+    <button @click="signin">Login</button>
     {{ authErrorMessage }}
   </div>
 </template>
@@ -51,11 +54,10 @@ export default class App extends Vue {
   private url = ''
   private login = ''
   private password = ''
-  private publicKey = ''
   private authErrorMessage = ''
   private userService?: UserService
   private urlService?: UrlService
-  private authenticatedUser?: AuthenticatedUser
+  private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
 
   $refs!: {
@@ -114,7 +116,19 @@ export default class App extends Vue {
 
     try {
       this.authenticatedUser = this.userService.register(this.login, this.password)
-      this.publicKey = this.authenticatedUser.login + '|' + this.authenticatedUser.publicKey
+    } catch (e) {
+      this.authErrorMessage = e.toString()
+    }
+  }
+
+  signin () {
+    if (!this.userService) {
+      return
+    }
+    this.authErrorMessage = ''
+
+    try {
+      this.authenticatedUser = this.userService.login(this.login, this.password)
     } catch (e) {
       this.authErrorMessage = e.toString()
     }

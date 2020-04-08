@@ -30,6 +30,16 @@ export class UserService {
     return authenticatedUser
   }
 
+  public login (login: string, password: string): AuthenticatedUser {
+    const authenticatedUser = this.cryptoService.getUserByLoginAndPassword(login, password)
+
+    if (!this.getUserByPublicKey(authenticatedUser.getPublicUser().publicKey)) {
+      throw new Error('User has not been registered')
+    }
+
+    return authenticatedUser
+  }
+
   private getUserByPublicKey (publicKey: string): User | null {
     return this.transactionService.getUserByPublicKey(publicKey)
   }
