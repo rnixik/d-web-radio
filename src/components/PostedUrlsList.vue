@@ -4,7 +4,7 @@
     <transition name="fade">
       <ul v-if="postedUrls && postedUrls.length">
         <li v-for="postedUrl in postedUrls" :key="postedUrl.url">
-          {{ postedUrl.url }} by {{ postedUrl.user.login }}
+          {{ postedUrl.getYouTubeUrl() }} by {{ postedUrl.user.login }}
         </li>
       </ul>
     </transition>

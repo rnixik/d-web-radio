@@ -4,12 +4,12 @@ import { YouTubeUrlPayload } from '@/app/transactions/YouTubeUrl/YouTubeUrlPaylo
 
 export class YouTubeUrlPayloadSerializer implements PayloadSerializer {
   fromDataToPayload (data: any): TransactionPayload {
-    return new YouTubeUrlPayload(data['u'])
+    return new YouTubeUrlPayload(data['id'])
   }
 
   payloadToData (payload: YouTubeUrlPayload): any {
     return {
-      'u': payload.url
+      'id': payload.videoId
     }
   }
 }

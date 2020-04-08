@@ -33,8 +33,10 @@ export class TransactionService {
 
   public createTransaction (creator: User, type: string, payload: TransactionPayload): Transaction {
     const hash = this.cryptoService.calculateTransactionHash(type, payload)
+    const transaction = new Transaction(creator.publicKey, type, payload, hash)
+    this.validator.validateSpecific(this.getTransactions(), transaction)
 
-    return new Transaction(creator.publicKey, type, payload, hash)
+    return transaction
   }
 
   public getTransactions (): Transaction[] {

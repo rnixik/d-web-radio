@@ -3,10 +3,10 @@ import { PayloadSerializer } from '@/types/PayloadSerializer'
 import { YouTubeUrlPayloadSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayloadSerializer'
 
 export class YouTubeUrlPayload implements TransactionPayload {
-  public url: string
+  public videoId: string
 
-  constructor (url: string) {
-    this.url = url
+  constructor (videoId: string) {
+    this.videoId = videoId
   }
 
   getSerializer (): PayloadSerializer {

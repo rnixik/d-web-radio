@@ -4,7 +4,7 @@ import { UserRegistrationPayload } from '@/transactions/UserRegistration/UserReg
 import { UserRegistrationTransactionType } from '@/transactions/UserRegistration/UserRegistrationTransactionType'
 
 export class UserRegistrationValidator implements SpecificValidator {
-  validate (storedTransactions: Transaction[], tx: Transaction): void {
+  public validate (storedTransactions: Transaction[], tx: Transaction): void {
     for (const storedTx of storedTransactions) {
       if (storedTx.type !== UserRegistrationTransactionType.t) {
         continue

@@ -21,14 +21,8 @@ export class UserService implements UserServiceInterface {
   public register (login: string, password: string): AuthenticatedUser {
     const authenticatedUser = this.cryptoService.getUserByLoginAndPassword(login, password)
     const publicUser = authenticatedUser.getPublicUser()
-
     const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
     const transaction = this.transactionService.createTransaction(publicUser, UserRegistrationTransactionType.t, payload)
-
-    if (this.getUserByPublicKey(publicUser.publicKey)) {
-      throw new Error('User already exists')
-    }
-
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
     return authenticatedUser

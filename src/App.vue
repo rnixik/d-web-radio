@@ -11,6 +11,8 @@
 
     <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
 
+    {{ postUrlErrorMessage }}
+
     <br>
     Login: <input v-model="login"><br>
     Password: <input v-model="password"><br>
@@ -66,6 +68,7 @@ export default class App extends Vue {
   private login = ''
   private password = ''
   private authErrorMessage = ''
+  private postUrlErrorMessage = ''
   private userService?: UserService
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
@@ -122,9 +125,14 @@ export default class App extends Vue {
     if (!this.connectionsPool || !this.url || !this.youTubeRadio || !this.authenticatedUser) {
       return
     }
+    this.postUrlErrorMessage = ''
 
-    this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
-    this.url = ''
+    try {
+      this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
+      this.url = ''
+    } catch (e) {
+      this.postUrlErrorMessage = e.toString()
+    }
   }
 
   register () {

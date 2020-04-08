@@ -1,11 +1,15 @@
 import { User } from '@/models/User'
 
 export class YouTubeUrlModel {
-  public url: string;
+  public videoId: string;
   public user: User
 
-  constructor (url: string, user: User) {
-    this.url = url
+  constructor (videoId: string, user: User) {
+    this.videoId = videoId
     this.user = user
+  }
+
+  public getYouTubeUrl (): string {
+    return 'https://www.youtube.com/embed/' + this.videoId + '?autoplay=0'
   }
 }

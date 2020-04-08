@@ -10,6 +10,6 @@ export class YouTubeUrlExtractor {
       throw new Error('Wrong type of transaction to extract: ' + transaction.type)
     }
     const payload = transaction.payload as YouTubeUrlPayload
-    return new YouTubeUrlModel(payload.url, creator)
+    return new YouTubeUrlModel(payload.videoId, creator)
   }
 }

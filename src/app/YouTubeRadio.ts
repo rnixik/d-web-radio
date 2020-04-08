@@ -6,6 +6,7 @@ import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTube
 import { Transaction } from '@/models/Transaction'
 import { YouTubeUrlExtractor } from '@/app/transactions/YouTubeUrl/YouTubeUrlExtractor'
 import { UserServiceInterface } from '@/types/UserServiceInterface'
+import { YouTubeIdExtractor } from '@/app/services/YouTubeIdExtractor'
 
 export class YouTubeRadio {
   private readonly transactionService: TransactionService
@@ -23,18 +24,13 @@ export class YouTubeRadio {
 
   public postUrl (authenticatedUser: AuthenticatedUser, url: string): YouTubeUrlModel {
     const publicUser = authenticatedUser.getPublicUser()
-    const storedPostedUrls = this.getPostedUrls()
-    for (const storedPostedUrl of storedPostedUrls) {
-      if (storedPostedUrl.url === url) {
-        throw new Error('Url already posted')
-      }
-    }
-
-    const payload = new YouTubeUrlPayload(url)
+    const videoIdExtractor = new YouTubeIdExtractor()
+    const videoId = videoIdExtractor.extractVideoId(url)
+    const payload = new YouTubeUrlPayload(videoId)
     const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, payload)
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
-    return new YouTubeUrlModel(url, publicUser)
+    return new YouTubeUrlModel(videoId, publicUser)
   }
 
   public getPostedUrls (): YouTubeUrlModel[] {
