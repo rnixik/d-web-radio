@@ -6,6 +6,10 @@ import { Signature } from '@/models/Signature'
 
 export class TransactionSerializer {
   public dataToTransaction (data: any, local: boolean): Transaction {
+    if (!data['k']) {
+      throw new Error('Empty creator public key')
+    }
+
     if (!data['t']) {
       throw new Error('Empty type')
     }
@@ -36,7 +40,7 @@ export class TransactionSerializer {
         throw new Error('Unknown type: ' + type)
     }
 
-    const tx = new Transaction(type, payload, data['h'])
+    const tx = new Transaction(data['k'], type, payload, data['h'])
 
     if (data['s']) {
       for (const signatureData of data['s']) {
@@ -61,6 +65,7 @@ export class TransactionSerializer {
     }
 
     const data: any = {
+      'k': transaction.creatorPublicKey,
       't': transaction.type,
       'p': transaction.payload,
       'h': transaction.hash,

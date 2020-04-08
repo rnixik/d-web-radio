@@ -26,8 +26,8 @@ export class TransactionService {
     this.validator = validator
     this.cryptoService = cryptoService
 
-    this.transport.addOnIncomingTransactionsCallback((sender, transactions) => {
-      this.handleIncomingTransactions(sender, transactions)
+    this.transport.addOnIncomingTransactionsCallback((transactions) => {
+      this.handleIncomingTransactions(transactions)
     })
   }
 
@@ -35,7 +35,7 @@ export class TransactionService {
     const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
     const hash = this.cryptoService.calculateTransactionHash(TransactionType.UserRegistration, payload)
 
-    return new Transaction(TransactionType.UserRegistration, payload, hash)
+    return new Transaction(publicUser.publicKey, TransactionType.UserRegistration, payload, hash)
   }
 
   public getUserByPublicKey (publicKey: string): User | null {
@@ -57,10 +57,10 @@ export class TransactionService {
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
     const signedTx = this.cryptoService.signTransaction(sender, transaction)
 
-    this.transport.send(sender.getPublicUser(), signedTx)
+    this.transport.send(signedTx)
   }
 
-  private handleIncomingTransactions (sender: User, incomingTransactions: Transaction[]) {
+  private handleIncomingTransactions (incomingTransactions: Transaction[]) {
     const storedTransactions = this.storageService.getTransactions()
     for (const incomingTx of incomingTransactions) {
       try {

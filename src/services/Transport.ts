@@ -1,12 +1,11 @@
 import { Transaction } from '@/models/Transaction'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
 import { TransactionSerializer } from '@/services/TransactionSerializer'
-import { User } from '@/models/User'
 
 export class Transport {
   private connectionPool: WebRtcConnectionsPool
   private transactionSerializer: TransactionSerializer
-  private onIncomingTransactionsCallbacks: ((sender: User, transactions: Transaction[]) => void)[] = []
+  private onIncomingTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
 
   constructor (connectionPool: WebRtcConnectionsPool, transactionSerializer: TransactionSerializer) {
     this.connectionPool = connectionPool
@@ -15,11 +14,10 @@ export class Transport {
     this.connectionPool.addOnMessageCallback((message: string, peerId: string) => {
       try {
         const data = JSON.parse(message)
-        if (!data || !data.type || !data.sender) {
+        if (!data || !data.type) {
           return
         }
-        if (data.type === 'txs') {
-          const sender = new User(data.login, data.publicKey)
+        if (data.type === 'txs' && data.txsData && data.txsData.length) {
           const transactions = []
           for (const txData of data.txsData) {
             transactions.push(this.transactionSerializer.dataToTransaction(txData, false))
@@ -27,29 +25,25 @@ export class Transport {
 
           if (transactions.length) {
             for (const callback of this.onIncomingTransactionsCallbacks) {
-              callback(sender, transactions)
+              callback(transactions)
             }
           }
         }
       } catch (e) {
-        console.log(e)
+        console.log('Cannot parse message from ' + peerId + ': ' + e.toString())
       }
     })
   }
 
-  public send (sender: User, transaction: Transaction) {
+  public send (transaction: Transaction) {
     const message = JSON.stringify({
       type: 'txs',
-      sender: {
-        login: sender.login,
-        publicKey: sender.publicKey
-      },
       txsData: [ this.transactionSerializer.transactionToData(transaction, false) ]
     })
     this.connectionPool.sendMessage(message)
   }
 
-  public addOnIncomingTransactionsCallback (callback: (sender: User, transactions: Transaction[]) => void): void {
+  public addOnIncomingTransactionsCallback (callback: (transactions: Transaction[]) => void): void {
     this.onIncomingTransactionsCallbacks.push(callback)
   }
 }

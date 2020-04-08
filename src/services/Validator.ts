@@ -21,6 +21,10 @@ export class Validator {
       throw new Error('No signatures')
     }
 
+    if (tx.signatures[0].publicKey !== tx.creatorPublicKey) {
+      throw new Error('Wrong first signature')
+    }
+
     for (const signature of tx.signatures) {
       if (!this.cryptoService.verifySignature(tx, signature)) {
         throw new Error('Invalid signature')
