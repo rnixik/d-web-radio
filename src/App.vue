@@ -47,7 +47,7 @@ import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
 import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
-import { YouTubeUrlPayloadSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayloadSerializer'
+import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
@@ -93,7 +93,7 @@ export default class App extends Vue {
 
     const cryptoService = new CryptoService()
     const transactionTypeResolver = new TransactionTypeResolver()
-    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlPayloadSerializer())
+    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
     transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, new YouTubeUrlValidator())
 
     const transactionSerializer = new TransactionSerializer(transactionTypeResolver)

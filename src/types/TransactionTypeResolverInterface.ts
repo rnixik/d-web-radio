@@ -1,9 +1,9 @@
-import { PayloadSerializer } from '@/types/PayloadSerializer'
+import { ModelSerializer } from '@/types/ModelSerializer'
 import { SpecificValidator } from '@/types/SpecificValidator'
 
 export interface TransactionTypeResolverInterface {
-  getPayloadSerializer (transactionType: string): PayloadSerializer
-  setPayloadSerializer (transactionType: string, payloadSerializer: PayloadSerializer): void
+  getPayloadSerializer (transactionType: string): ModelSerializer
+  setPayloadSerializer (transactionType: string, payloadSerializer: ModelSerializer): void
   getSpecificValidator (transactionType: string): SpecificValidator
   setSpecificValidator (transactionType: string, specificValidator: SpecificValidator): void
 }

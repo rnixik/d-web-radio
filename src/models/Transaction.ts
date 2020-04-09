@@ -1,18 +1,19 @@
-import { TransactionPayload } from '@/types/TransactionPayload'
+import { TransactionModel } from '@/types/TransactionModel'
 import { Signature } from '@/models/Signature'
+import { User } from '@/models/User'
 
 export class Transaction {
-  public creatorPublicKey: string
+  public creator: User
   public type: string
-  public payload: TransactionPayload
+  public model: TransactionModel
   public hash: string
   public storedAt?: string
   public signatures: Signature[] = []
 
-  constructor (creatorPublicKey: string, type: string, payload: TransactionPayload, hash: string) {
-    this.creatorPublicKey = creatorPublicKey
+  constructor (creator: User, type: string, model: TransactionModel, hash: string) {
+    this.creator = creator
     this.type = type
-    this.payload = payload
+    this.model = model
     this.hash = hash
   }
 }

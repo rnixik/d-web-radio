@@ -2,7 +2,7 @@ import { Transaction } from '@/models/Transaction'
 import { User } from '@/models/User'
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { Signature } from '@/models/Signature'
-import { TransactionPayload } from '@/types/TransactionPayload'
+import { TransactionModel } from '@/types/TransactionModel'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { StorageServiceInterface } from '@/types/StorageServiceInterface'
 import { TransportServiceInterface } from '@/types/TransportServiceInterface'
@@ -31,9 +31,9 @@ export class TransactionService {
     })
   }
 
-  public createTransaction (creator: User, type: string, payload: TransactionPayload): Transaction {
-    const hash = this.cryptoService.calculateTransactionHash(type, payload)
-    const transaction = new Transaction(creator.publicKey, type, payload, hash)
+  public createTransaction (creator: User, type: string, model: TransactionModel): Transaction {
+    const hash = this.cryptoService.calculateTransactionHash(type, model)
+    const transaction = new Transaction(creator, type, model, hash)
     this.validator.validateSpecific(this.getTransactions(), transaction)
 
     return transaction

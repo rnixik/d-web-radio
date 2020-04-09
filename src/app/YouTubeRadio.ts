@@ -1,10 +1,8 @@
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { TransactionService } from '@/services/TransactionService'
-import { YouTubeUrlPayload } from '@/app/transactions/YouTubeUrl/YouTubeUrlPayload'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { Transaction } from '@/models/Transaction'
-import { YouTubeUrlExtractor } from '@/app/transactions/YouTubeUrl/YouTubeUrlExtractor'
 import { UserServiceInterface } from '@/types/UserServiceInterface'
 import { YouTubeIdExtractor } from '@/app/services/YouTubeIdExtractor'
 
@@ -26,11 +24,11 @@ export class YouTubeRadio {
     const publicUser = authenticatedUser.getPublicUser()
     const videoIdExtractor = new YouTubeIdExtractor()
     const videoId = videoIdExtractor.extractVideoId(url)
-    const payload = new YouTubeUrlPayload(videoId)
-    const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, payload)
+    const youTubeUrlModel = new YouTubeUrlModel(videoId, publicUser)
+    const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
-    return new YouTubeUrlModel(videoId, publicUser)
+    return youTubeUrlModel
   }
 
   public getPostedUrls (): YouTubeUrlModel[] {
@@ -54,17 +52,10 @@ export class YouTubeRadio {
 
   public extractUrlsFromTransactions (transactions: Transaction[]): YouTubeUrlModel[] {
     const postedUrls: YouTubeUrlModel[] = []
-    const extractor = new YouTubeUrlExtractor()
 
     for (const tx of transactions) {
-      const creator = this.userService.getUserByPublicKey(tx.creatorPublicKey)
-      if (!creator) {
-        console.error('Cannot find creator of transaction: ' + tx.creatorPublicKey)
-        continue
-      }
       if (tx.type === YouTubeUrlTransactionType.t) {
-        const postedUrl = extractor.extract(tx, creator)
-        postedUrls.push(postedUrl)
+        postedUrls.push(tx.model as YouTubeUrlModel)
       }
     }
 

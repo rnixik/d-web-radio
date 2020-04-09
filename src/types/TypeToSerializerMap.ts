@@ -1,5 +1,5 @@
-import { PayloadSerializer } from '@/types/PayloadSerializer'
+import { ModelSerializer } from '@/types/ModelSerializer'
 
 export interface TypeToSerializerMap {
-  [type: string]: PayloadSerializer
+  [type: string]: ModelSerializer
 }

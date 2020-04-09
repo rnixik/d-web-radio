@@ -1,10 +1,10 @@
 import { TypeToSerializerMap } from '@/types/TypeToSerializerMap'
-import { UserRegistrationPayloadSerializer } from '@/transactions/UserRegistration/UserRegistrationPayloadSerializer'
-import { PayloadSerializer } from '@/types/PayloadSerializer'
-import { UserRegistrationTransactionType } from '@/transactions/UserRegistration/UserRegistrationTransactionType'
+import { UserSerializer } from '@/transactions/User/UserSerializer'
+import { ModelSerializer } from '@/types/ModelSerializer'
+import { UserTransactionType } from '@/transactions/User/UserTransactionType'
 import { SpecificValidator } from '@/types/SpecificValidator'
 import { TypeToValidatorMap } from '@/types/TypeToValidatorMap'
-import { UserRegistrationValidator } from '@/transactions/UserRegistration/UserRegistrationValidator'
+import { UserValidator } from '@/transactions/User/UserValidator'
 import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
 
 export class TransactionTypeResolver implements TransactionTypeResolverInterface {
@@ -13,13 +13,13 @@ export class TransactionTypeResolver implements TransactionTypeResolverInterface
 
   constructor () {
     this.typeToSerializerMap = {}
-    this.typeToSerializerMap[UserRegistrationTransactionType.t] = new UserRegistrationPayloadSerializer()
+    this.typeToSerializerMap[UserTransactionType.t] = new UserSerializer()
 
     this.typeToValidatorMap = {}
-    this.typeToValidatorMap[UserRegistrationTransactionType.t] = new UserRegistrationValidator()
+    this.typeToValidatorMap[UserTransactionType.t] = new UserValidator()
   }
 
-  public getPayloadSerializer (transactionType: string): PayloadSerializer {
+  public getPayloadSerializer (transactionType: string): ModelSerializer {
     if (this.typeToSerializerMap[transactionType]) {
       return this.typeToSerializerMap[transactionType]
     }
@@ -27,7 +27,7 @@ export class TransactionTypeResolver implements TransactionTypeResolverInterface
     throw new Error('Unregistered transaction type: ' + transactionType)
   }
 
-  public setPayloadSerializer (transactionType: string, payloadSerializer: PayloadSerializer): void {
+  public setPayloadSerializer (transactionType: string, payloadSerializer: ModelSerializer): void {
     this.typeToSerializerMap[transactionType] = payloadSerializer
   }
 

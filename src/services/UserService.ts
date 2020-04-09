@@ -1,8 +1,7 @@
 import { AuthenticatedUser } from '@/models/AuthenticatedUser'
 import { TransactionService } from '@/services/TransactionService'
 import { User } from '@/models/User'
-import { UserRegistrationPayload } from '@/transactions/UserRegistration/UserRegistrationPayload'
-import { UserRegistrationTransactionType } from '@/transactions/UserRegistration/UserRegistrationTransactionType'
+import { UserTransactionType } from '@/transactions/User/UserTransactionType'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { UserServiceInterface } from '@/types/UserServiceInterface'
 
@@ -21,8 +20,7 @@ export class UserService implements UserServiceInterface {
   public register (login: string, password: string): AuthenticatedUser {
     const authenticatedUser = this.cryptoService.getUserByLoginAndPassword(login, password)
     const publicUser = authenticatedUser.getPublicUser()
-    const payload = new UserRegistrationPayload(publicUser.login, publicUser.publicKey)
-    const transaction = this.transactionService.createTransaction(publicUser, UserRegistrationTransactionType.t, payload)
+    const transaction = this.transactionService.createTransaction(publicUser, UserTransactionType.t, publicUser)
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
     return authenticatedUser
@@ -38,16 +36,16 @@ export class UserService implements UserServiceInterface {
     return authenticatedUser
   }
 
-  public getUserByPublicKey (publicKey: string): User | null {
+  private getUserByPublicKey (publicKey: string): User | null {
     const storedTransactions = this.transactionService.getTransactions()
 
     for (const tx of storedTransactions) {
-      if (tx.type !== UserRegistrationTransactionType.t) {
+      if (tx.type !== UserTransactionType.t) {
         continue
       }
-      const payload = tx.payload as UserRegistrationPayload
-      if (payload.publicKey === publicKey) {
-        return new User(payload.login, payload.publicKey)
+      const user = tx.model as User
+      if (user.publicKey === publicKey) {
+        return user
       }
     }
 

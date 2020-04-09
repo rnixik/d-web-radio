@@ -2,6 +2,8 @@ import { Transaction } from '@/models/Transaction'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { ValidatorServiceInterface } from '@/types/ValidatorServiceInterface'
 import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
+import { User } from '@/models/User'
+import { UserTransactionType } from '@/transactions/User/UserTransactionType'
 
 export class ValidatorService implements ValidatorServiceInterface {
   private cryptoService: CryptoServiceInterface
@@ -13,7 +15,7 @@ export class ValidatorService implements ValidatorServiceInterface {
   }
 
   public validateBase (storedTransactions: Transaction[], tx: Transaction): void {
-    const hash = this.cryptoService.calculateTransactionHash(tx.type, tx.payload)
+    const hash = this.cryptoService.calculateTransactionHash(tx.type, tx.model)
 
     if (hash !== tx.hash) {
       throw new Error('Invalid hash')
@@ -23,8 +25,18 @@ export class ValidatorService implements ValidatorServiceInterface {
       throw new Error('No signatures')
     }
 
-    if (tx.signatures[0].publicKey !== tx.creatorPublicKey) {
+    if (tx.signatures[0].publicKey !== tx.creator.publicKey) {
       throw new Error('Wrong first signature')
+    }
+
+    if (tx.type !== UserTransactionType.t) {
+      const storedUser = this.getUserByPublicKey(storedTransactions, tx.creator.publicKey)
+      if (!storedUser) {
+        throw new Error('Creator of transactions not found')
+      }
+      if (storedUser.login !== tx.creator.login) {
+        throw new Error('Login mismatch of creator')
+      }
     }
 
     for (const signature of tx.signatures) {
@@ -37,5 +49,19 @@ export class ValidatorService implements ValidatorServiceInterface {
   public validateSpecific (storedTransactions: Transaction[], tx: Transaction): void {
     const specificValidator = this.transactionTypeResolver.getSpecificValidator(tx.type)
     specificValidator.validate(storedTransactions, tx)
+  }
+
+  private getUserByPublicKey (storedTransactions: Transaction[], publicKey: string): User | null {
+    for (const tx of storedTransactions) {
+      if (tx.type !== UserTransactionType.t) {
+        continue
+      }
+      const user = tx.model as User
+      if (user.publicKey === publicKey) {
+        return user
+      }
+    }
+
+    return null
   }
 }
