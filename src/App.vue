@@ -74,6 +74,7 @@ export default class App extends Vue {
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: YouTubeUrlModel[] = []
+  private broadcastInterval = 10000
 
   $refs!: {
     messages: HTMLElement
@@ -107,6 +108,15 @@ export default class App extends Vue {
     this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     this.postedUrls = this.youTubeRadio.getPostedUrls()
+
+    let broadcastIntervalId: number
+    this.connectionsPool.addOnOpenCallback(() => {
+      if (!broadcastIntervalId) {
+        broadcastIntervalId = window.setInterval(() => {
+          transactionService.broadcastTransactions()
+        }, this.broadcastInterval)
+      }
+    })
 
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false

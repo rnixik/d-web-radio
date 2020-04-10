@@ -36,10 +36,15 @@ export class TransportService implements TransportServiceInterface {
     })
   }
 
-  public send (transaction: Transaction): void {
+  public send (transactions: Transaction[]): void {
+    const serializedTransactions = []
+    for (const tx of transactions) {
+      serializedTransactions.push(this.transactionSerializer.transactionToData(tx, false))
+    }
+
     const message = JSON.stringify({
       type: 'txs',
-      txsData: [ this.transactionSerializer.transactionToData(transaction, false) ]
+      txsData: serializedTransactions
     })
     this.connectionPool.sendMessage(message)
   }

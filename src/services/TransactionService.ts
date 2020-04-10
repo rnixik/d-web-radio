@@ -45,12 +45,17 @@ export class TransactionService {
 
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
     const signedTx = this.cryptoService.signTransaction(sender, transaction)
-
-    this.transport.send(signedTx)
+    this.transport.send([signedTx])
+    this.handleIncomingTransactions([signedTx])
   }
 
   public addOnNewTransactionsCallback (callback: (transactions: Transaction[]) => void) {
     this.onNewTransactionsCallbacks.push(callback)
+  }
+
+  public broadcastTransactions () {
+    const storedTransactions = this.storageService.getTransactions()
+    this.transport.send(storedTransactions)
   }
 
   private handleIncomingTransactions (incomingTransactions: Transaction[]) {
