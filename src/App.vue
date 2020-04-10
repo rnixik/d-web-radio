@@ -7,7 +7,7 @@
     <div>Active connections: {{ activeConnectionsNum }}</div>
 
     <input v-model="input" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="sendMessage">Send</button>
-    <div ref="messages"></div>
+    <div ref="messages" style="height: 100px; overflow: scroll"></div>
 
     <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
 

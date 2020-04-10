@@ -82,6 +82,7 @@ export class TransactionService {
         try {
           this.validator.validateSpecific(storedTransactions, incomingTx)
           transactionsToStore.push(incomingTx)
+          storedTransactions.push(incomingTx)
         } catch (e) {
           console.error('Incoming transaction is invalid by specific rules', e, incomingTx)
         }
