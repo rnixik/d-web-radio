@@ -43,8 +43,12 @@ export class TransactionService {
     return transaction
   }
 
-  public getTransactions (): Transaction[] {
-    return this.storageService.getTransactions()
+  public getTransactions (removeIgnored: boolean = false): Transaction[] {
+    const allTransactions = this.storageService.getTransactions()
+    if (!removeIgnored) {
+      return allTransactions
+    }
+    return this.ignoreAndBlockFilterService.filterIgnored(allTransactions)
   }
 
   public signAndSend (sender: AuthenticatedUser, transaction: Transaction) {
@@ -124,6 +128,8 @@ export class TransactionService {
   }
 
   private notifyContextAboutNewTransactions (newTransactions: Transaction[], storedTransactions: Transaction[]) {
+    newTransactions = this.ignoreAndBlockFilterService.filterIgnored(newTransactions)
+    storedTransactions = this.ignoreAndBlockFilterService.filterIgnored(storedTransactions)
     for (const callback of this.onNewTransactionsCallbacks) {
       callback(newTransactions, storedTransactions)
     }

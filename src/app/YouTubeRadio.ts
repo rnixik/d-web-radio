@@ -32,7 +32,7 @@ export class YouTubeRadio {
   }
 
   public getPostedUrls (): YouTubeUrlModel[] {
-    const storedTransactions = this.transactionService.getTransactions()
+    const storedTransactions = this.transactionService.getTransactions(true)
 
     return this.extractUrlsFromTransactions(storedTransactions)
   }

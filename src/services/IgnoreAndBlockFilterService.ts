@@ -24,6 +24,20 @@ export class IgnoreAndBlockFilterService implements IgnoreAndBlockFilterServiceI
     return transactions
   }
 
+  public filterIgnored (transactions: Transaction[]): Transaction[] {
+    const preferencesIgnoreAndBlock = this.preferencesStorageService.getPreferencesIgnoreAndBlock()
+
+    if (preferencesIgnoreAndBlock.isIgnoreWhiteListEnabled) {
+      return IgnoreAndBlockFilterService.filterWhiteList(transactions, preferencesIgnoreAndBlock.ignoreWhiteList)
+    }
+
+    if (preferencesIgnoreAndBlock.isIgnoreBlackListEnabled) {
+      return IgnoreAndBlockFilterService.filterBlackList(transactions, preferencesIgnoreAndBlock.ignoreBlackList)
+    }
+
+    return transactions
+  }
+
   private static getPublicKeysFromUsers (users: User[]): string[] {
     return users.map((user) => {
       return user.publicKey

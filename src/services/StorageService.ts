@@ -78,10 +78,16 @@ export class StorageService implements StorageServiceInterface, PreferencesStora
   public getPreferencesIgnoreAndBlock (): PreferencesIgnoreAndBlock {
     const kkk = new User('kkk', 'BPfkkMuCJUVSx2pscrJphP28WiJmTmKvwONIZduBNXs=')
     const ddd = new User('ddd', 'duhb/AAjJTKlzqROYQE98yDZ0h4klI82CYId/ExIN5k=')
+    const aaa = new User('aaa', 'xIdGsR2EphOuwVC3F8NsrGImbsa7bMWY86Hxc8ewNF4=')
+    const bbb = new User('bbb', 'UzZZoyUKCUC5ck6LHhWQ+1/kUDj0BURqPDXZ6I3FWCM=')
 
     return new PreferencesIgnoreAndBlock(
       [kkk],
       [ddd],
+      true,
+      false,
+      [aaa],
+      [bbb],
       true,
       false
     )
