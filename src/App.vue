@@ -56,6 +56,7 @@ import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { UserWithTransactions } from '@/models/UserWithTransactions'
 import { Transaction } from '@/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
+import { IgnoreAndBlockFilterService } from '@/services/IgnoreAndBlockFilterService'
 
 @Component({
   components: {
@@ -109,7 +110,14 @@ export default class App extends Vue {
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
     const transportService = new TransportService(this.connectionsPool, transactionSerializer)
     const validatorService = new ValidatorService(cryptoService, transactionTypeResolver)
-    const transactionService = new TransactionService(cryptoService, transportService, storageService, validatorService)
+    const ignoreAndBlockFilterService = new IgnoreAndBlockFilterService(storageService)
+    const transactionService = new TransactionService(
+      cryptoService,
+      transportService,
+      storageService,
+      validatorService,
+      ignoreAndBlockFilterService
+    )
 
     this.userService = new UserService(cryptoService, transactionService)
     this.youTubeRadio = new YouTubeRadio(transactionService, this.userService)
@@ -119,6 +127,7 @@ export default class App extends Vue {
     this.usersWithTransactions = this.userService.getUsersWithTransactions()
 
     transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
+    transactionService.filterAndStoreStoredTransactions()
 
     let broadcastIntervalId: number
     this.connectionsPool.addOnOpenCallback(() => {

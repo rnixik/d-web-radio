@@ -5,4 +5,5 @@ export interface StorageServiceInterface {
   storeTransactions (transactions: Transaction[]): Transaction[]
   storeTransactionSignatures (transaction: Transaction, signatures: Signature[]): void
   getTransactions (): Transaction[]
+  replaceAllTransactions (transactions: Transaction[]): void
 }

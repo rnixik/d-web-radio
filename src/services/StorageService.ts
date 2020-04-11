@@ -2,9 +2,13 @@ import { Transaction } from '@/models/Transaction'
 import { Signature } from '@/models/Signature'
 import { StorageServiceInterface } from '@/types/StorageServiceInterface'
 import { TransactionSerializerInterface } from '@/types/TransactionSerializerInterface'
+import { User } from '@/models/User'
+import { PreferencesStorageServiceInterface } from '@/types/PreferencesStorageServiceInterface'
+import { PreferencesIgnoreAndBlock } from '@/models/PreferencesIgnoreAndBlock'
 
-export class StorageService implements StorageServiceInterface {
-  private static STORAGE_KEY_TRANSACTIONS = 'transactions';
+export class StorageService implements StorageServiceInterface, PreferencesStorageServiceInterface {
+  private static STORAGE_KEY_TRANSACTIONS = 'transactions'
+  private static STORAGE_KEY_PREFERENCES = 'preferences'
 
   private readonly namespace: string
   private readonly transactionSerializer: TransactionSerializerInterface
@@ -71,7 +75,19 @@ export class StorageService implements StorageServiceInterface {
     return transactions
   }
 
-  private replaceAllTransactions (transactions: Transaction[]): void {
+  public getPreferencesIgnoreAndBlock (): PreferencesIgnoreAndBlock {
+    const kkk = new User('kkk', 'BPfkkMuCJUVSx2pscrJphP28WiJmTmKvwONIZduBNXs=')
+    const ddd = new User('ddd', 'duhb/AAjJTKlzqROYQE98yDZ0h4klI82CYId/ExIN5k=')
+
+    return new PreferencesIgnoreAndBlock(
+      [kkk],
+      [ddd],
+      true,
+      false
+    )
+  }
+
+  public replaceAllTransactions (transactions: Transaction[]): void {
     const serialized = []
     for (const tx of transactions) {
       serialized.push(this.transactionSerializer.transactionToData(tx, true))

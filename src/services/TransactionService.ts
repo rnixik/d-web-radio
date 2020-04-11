@@ -7,24 +7,28 @@ import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { StorageServiceInterface } from '@/types/StorageServiceInterface'
 import { TransportServiceInterface } from '@/types/TransportServiceInterface'
 import { ValidatorServiceInterface } from '@/types/ValidatorServiceInterface'
+import { IgnoreAndBlockFilterServiceInterface } from '@/types/IgnoreAndBlockFilterServiceInterface'
 
 export class TransactionService {
   private transport: TransportServiceInterface
   private storageService: StorageServiceInterface
   private validator: ValidatorServiceInterface
   private cryptoService: CryptoServiceInterface
+  private ignoreAndBlockFilterService: IgnoreAndBlockFilterServiceInterface
   private onNewTransactionsCallbacks: ((newTransactions: Transaction[], storedTransactions: Transaction[]) => void)[] = []
 
   constructor (
     cryptoService: CryptoServiceInterface,
     transport: TransportServiceInterface,
     storageService: StorageServiceInterface,
-    validator: ValidatorServiceInterface
+    validator: ValidatorServiceInterface,
+    ignoreAndBlockFilterService: IgnoreAndBlockFilterServiceInterface
   ) {
     this.transport = transport
     this.storageService = storageService
     this.validator = validator
     this.cryptoService = cryptoService
+    this.ignoreAndBlockFilterService = ignoreAndBlockFilterService
 
     this.transport.addOnIncomingTransactionsCallback((transactions) => {
       this.handleIncomingTransactions(transactions)
@@ -58,9 +62,17 @@ export class TransactionService {
     this.transport.send(storedTransactions)
   }
 
+  public filterAndStoreStoredTransactions (): void {
+    const storedTransactions = this.storageService.getTransactions()
+    const filteredTransactions = this.ignoreAndBlockFilterService.filterBlocked(storedTransactions)
+    this.storageService.replaceAllTransactions(filteredTransactions)
+  }
+
   private handleIncomingTransactions (incomingTransactions: Transaction[]) {
     const storedTransactions = this.storageService.getTransactions()
     const transactionsToStore: Transaction[] = []
+
+    incomingTransactions = this.ignoreAndBlockFilterService.filterBlocked(incomingTransactions)
 
     for (const incomingTx of incomingTransactions) {
       try {
