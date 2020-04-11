@@ -13,7 +13,7 @@ export class TransactionService {
   private storageService: StorageServiceInterface
   private validator: ValidatorServiceInterface
   private cryptoService: CryptoServiceInterface
-  private onNewTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
+  private onNewTransactionsCallbacks: ((newTransactions: Transaction[], storedTransactions: Transaction[]) => void)[] = []
 
   constructor (
     cryptoService: CryptoServiceInterface,
@@ -49,7 +49,7 @@ export class TransactionService {
     this.handleIncomingTransactions([signedTx])
   }
 
-  public addOnNewTransactionsCallback (callback: (transactions: Transaction[]) => void) {
+  public addOnNewTransactionsCallback (callback: (newTransactions: Transaction[], storedTransactions: Transaction[]) => void) {
     this.onNewTransactionsCallbacks.push(callback)
   }
 
@@ -92,7 +92,7 @@ export class TransactionService {
     if (transactionsToStore.length) {
       const newStoredTransactions = this.storageService.storeTransactions(transactionsToStore)
       if (newStoredTransactions.length) {
-        this.notifyContextAboutNewTransactions(newStoredTransactions)
+        this.notifyContextAboutNewTransactions(newStoredTransactions, storedTransactions)
       }
     }
   }
@@ -111,9 +111,9 @@ export class TransactionService {
     this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
   }
 
-  private notifyContextAboutNewTransactions (transactions: Transaction[]) {
+  private notifyContextAboutNewTransactions (newTransactions: Transaction[], storedTransactions: Transaction[]) {
     for (const callback of this.onNewTransactionsCallbacks) {
-      callback(transactions)
+      callback(newTransactions, storedTransactions)
     }
   }
 }

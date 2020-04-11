@@ -15,8 +15,8 @@ export class YouTubeRadio {
     this.transactionService = transactionService
     this.userService = userService
 
-    this.transactionService.addOnNewTransactionsCallback((transactions: Transaction[]) => {
-      this.handleNewTransactions(transactions)
+    this.transactionService.addOnNewTransactionsCallback((newTransactions: Transaction[], storedTransactions) => {
+      this.handleNewTransactions(newTransactions)
     })
   }
 

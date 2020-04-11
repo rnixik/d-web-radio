@@ -26,6 +26,9 @@
     <div>
       <posted-urls-list :posted-urls="postedUrls"></posted-urls-list>
     </div>
+    <div>
+      <users-list :users-with-transactions="usersWithTransactions"></users-list>
+    </div>
   </div>
 </template>
 
@@ -50,9 +53,13 @@ import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTube
 import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
+import { UserWithTransactions } from '@/models/UserWithTransactions'
+import { Transaction } from '@/models/Transaction'
+import UsersList from '@/components/UsersList.vue'
 
 @Component({
   components: {
+    UsersList,
     LocalSignaling,
     ManualSignaling,
     SocketsSignaling,
@@ -74,6 +81,7 @@ export default class App extends Vue {
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: YouTubeUrlModel[] = []
+  private usersWithTransactions: UserWithTransactions[] = []
   private broadcastInterval = 10000
 
   $refs!: {
@@ -108,6 +116,9 @@ export default class App extends Vue {
     this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     this.postedUrls = this.youTubeRadio.getPostedUrls()
+    this.usersWithTransactions = this.userService.getUsersWithTransactions()
+
+    transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
 
     let broadcastIntervalId: number
     this.connectionsPool.addOnOpenCallback(() => {
@@ -174,6 +185,12 @@ export default class App extends Vue {
   handleNewPostedUrls (postedUrls: YouTubeUrlModel[]) {
     console.log('new urls', postedUrls)
     this.postedUrls = this.postedUrls.concat(postedUrls)
+  }
+
+  handleNewTransactions (newTransactions: Transaction[]) {
+    if (this.userService) {
+      this.usersWithTransactions = this.userService.getUsersWithTransactions()
+    }
   }
 }
 </script>

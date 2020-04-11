@@ -4,6 +4,7 @@ import { User } from '@/models/User'
 import { UserTransactionType } from '@/transactions/User/UserTransactionType'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { UserServiceInterface } from '@/types/UserServiceInterface'
+import { UserWithTransactions } from '@/models/UserWithTransactions'
 
 export class UserService implements UserServiceInterface {
   private cryptoService: CryptoServiceInterface
@@ -34,6 +35,30 @@ export class UserService implements UserServiceInterface {
     }
 
     return authenticatedUser
+  }
+
+  public getUsersWithTransactions (): UserWithTransactions[] {
+    const usersWithTransactions: UserWithTransactions[] = []
+    const allTransactions = this.transactionService.getTransactions()
+    const usersIndex: Map<string, UserWithTransactions> = new Map()
+    for (const tx of allTransactions) {
+      if (tx.type === UserTransactionType.t) {
+        const user = tx.model as User
+        usersIndex.set(user.publicKey, new UserWithTransactions(user, []))
+      }
+    }
+    for (const tx of allTransactions) {
+      const userWithTransactions = usersIndex.get(tx.creator.publicKey)
+      if (userWithTransactions) {
+        userWithTransactions.addTransaction(tx)
+      }
+    }
+
+    usersIndex.forEach((userWithTransactions, publicKey) => {
+      usersWithTransactions.push(userWithTransactions)
+    })
+
+    return usersWithTransactions
   }
 
   private getUserByPublicKey (publicKey: string): User | null {
