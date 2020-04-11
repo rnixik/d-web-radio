@@ -15,7 +15,7 @@ export class ValidatorService implements ValidatorServiceInterface {
   }
 
   public validateBase (storedTransactions: Transaction[], tx: Transaction): void {
-    const hash = this.cryptoService.calculateTransactionHash(tx.type, tx.model)
+    const hash = this.cryptoService.calculateTransactionHash(tx.creator, tx.type, tx.model)
 
     if (hash !== tx.hash) {
       throw new Error('Invalid hash')

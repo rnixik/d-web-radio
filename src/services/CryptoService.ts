@@ -5,6 +5,7 @@ import { TransactionModel } from '@/types/TransactionModel'
 import { Transaction } from '@/models/Transaction'
 import { Signature } from '@/models/Signature'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
+import { User } from '@/models/User'
 
 export class CryptoService implements CryptoServiceInterface {
   public getUserByLoginAndPassword (login: string, password: string): AuthenticatedUser {
@@ -18,8 +19,8 @@ export class CryptoService implements CryptoServiceInterface {
     )
   }
 
-  public calculateTransactionHash (type: string, model: TransactionModel): string {
-    const str = JSON.stringify([type, model])
+  public calculateTransactionHash (creator: User, type: string, model: TransactionModel): string {
+    const str = JSON.stringify([creator, type, model])
     const hash = nacl.hash(util.decodeUTF8(str))
     const shortHash = hash.slice(0, 16)
 

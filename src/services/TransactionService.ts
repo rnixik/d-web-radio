@@ -32,7 +32,7 @@ export class TransactionService {
   }
 
   public createTransaction (creator: User, type: string, model: TransactionModel): Transaction {
-    const hash = this.cryptoService.calculateTransactionHash(type, model)
+    const hash = this.cryptoService.calculateTransactionHash(creator, type, model)
     const transaction = new Transaction(creator, type, model, hash)
     this.validator.validateSpecific(this.getTransactions(), transaction)
 
