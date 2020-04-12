@@ -4,7 +4,7 @@
     <transition name="fade">
       <ul v-if="postedUrls && postedUrls.length">
         <li v-for="postedUrl in postedUrls" :key="postedUrl.url">
-          {{ postedUrl.getYouTubeUrl() }} by {{ postedUrl.user.login }}
+          {{ postedUrl.getYouTubeUrl() }} by <user :user="postedUrl.user"></user>
         </li>
       </ul>
     </transition>
@@ -14,8 +14,10 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
-
-@Component
+import User from '@/components/User.vue'
+@Component({
+  components: { User }
+})
 export default class PostedUrlsList extends Vue {
   @Prop({ default: [] }) postedUrls!: YouTubeUrlModel[]
 }

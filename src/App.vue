@@ -124,7 +124,7 @@ export default class App extends Vue {
     this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     this.postedUrls = this.youTubeRadio.getPostedUrls()
-    this.usersWithTransactions = this.userService.getUsersWithTransactions()
+    this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
 
     transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
     transactionService.filterAndStoreStoredTransactions()
@@ -198,7 +198,7 @@ export default class App extends Vue {
 
   handleNewTransactions (newTransactions: Transaction[]) {
     if (this.userService) {
-      this.usersWithTransactions = this.userService.getUsersWithTransactions()
+      this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
     }
   }
 }

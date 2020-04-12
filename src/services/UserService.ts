@@ -37,9 +37,9 @@ export class UserService implements UserServiceInterface {
     return authenticatedUser
   }
 
-  public getUsersWithTransactions (): UserWithTransactions[] {
+  public getUsersWithTransactions (removeIgnored: boolean): UserWithTransactions[] {
     const usersWithTransactions: UserWithTransactions[] = []
-    const allTransactions = this.transactionService.getTransactions()
+    const allTransactions = this.transactionService.getTransactions(removeIgnored)
     const usersIndex: Map<string, UserWithTransactions> = new Map()
     for (const tx of allTransactions) {
       if (tx.type === UserTransactionType.t) {
