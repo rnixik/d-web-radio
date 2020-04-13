@@ -1,13 +1,11 @@
 <template>
   <div>
     Urls:
-    <transition name="fade">
-      <ul v-if="postedUrls && postedUrls.length">
-        <li v-for="postedUrl in postedUrls" :key="postedUrl.url">
-          {{ postedUrl.getYouTubeUrl() }} by <user :user="postedUrl.user"></user>
-        </li>
-      </ul>
-    </transition>
+    <ul v-if="postedUrls && postedUrls.length">
+      <li v-for="postedUrl in postedUrls" :key="postedUrl.url">
+        {{ postedUrl.getYouTubeUrl() }} by <user :user="postedUrl.user"></user>
+      </li>
+    </ul>
   </div>
 </template>
 

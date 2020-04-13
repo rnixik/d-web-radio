@@ -76,21 +76,24 @@ export class StorageService implements StorageServiceInterface, PreferencesStora
   }
 
   public getPreferencesIgnoreAndBlock (): PreferencesIgnoreAndBlock {
-    const kkk = new User('kkk', 'BPfkkMuCJUVSx2pscrJphP28WiJmTmKvwONIZduBNXs=')
-    const ddd = new User('ddd', 'duhb/AAjJTKlzqROYQE98yDZ0h4klI82CYId/ExIN5k=')
-    const aaa = new User('aaa', 'xIdGsR2EphOuwVC3F8NsrGImbsa7bMWY86Hxc8ewNF4=')
-    const bbb = new User('bbb', 'UzZZoyUKCUC5ck6LHhWQ+1/kUDj0BURqPDXZ6I3FWCM=')
+    const str = localStorage.getItem(this.namespace + ':' + StorageService.STORAGE_KEY_PREFERENCES)
+    if (!str) {
+      return new PreferencesIgnoreAndBlock(
+        [],
+        [],
+        true,
+        false,
+        [],
+        [],
+        true,
+        false
+      )
+    }
+    return JSON.parse(str) as PreferencesIgnoreAndBlock
+  }
 
-    return new PreferencesIgnoreAndBlock(
-      [kkk],
-      [ddd],
-      true,
-      false,
-      [aaa],
-      [bbb],
-      true,
-      false
-    )
+  public storePreferencesIgnoreAndBlock (preferences: PreferencesIgnoreAndBlock): void {
+    localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_PREFERENCES, JSON.stringify(preferences))
   }
 
   public replaceAllTransactions (transactions: Transaction[]): void {

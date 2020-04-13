@@ -29,6 +29,7 @@
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
     </div>
+    <v-dialog/>
   </div>
 </template>
 
@@ -57,6 +58,10 @@ import { UserWithTransactions } from '@/models/UserWithTransactions'
 import { Transaction } from '@/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
 import { IgnoreAndBlockFilterService } from '@/services/IgnoreAndBlockFilterService'
+import { EventHub } from '@/components/EventHub'
+import { User } from '@/models/User'
+import { IgnoreAndBlockControlService } from '@/services/IgnoreAndBlockControlService'
+import clearAllTimers = jest.clearAllTimers;
 
 @Component({
   components: {
@@ -78,6 +83,7 @@ export default class App extends Vue {
   private authErrorMessage = ''
   private postUrlErrorMessage = ''
   private userService?: UserService
+  private ignoreAndBlockControlService?: IgnoreAndBlockControlService
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
@@ -120,14 +126,11 @@ export default class App extends Vue {
     )
 
     this.userService = new UserService(cryptoService, transactionService)
+    this.ignoreAndBlockControlService = new IgnoreAndBlockControlService(storageService)
     this.youTubeRadio = new YouTubeRadio(transactionService, this.userService)
     this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
-    this.postedUrls = this.youTubeRadio.getPostedUrls()
-    this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
-
     transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
-    transactionService.filterAndStoreStoredTransactions()
 
     let broadcastIntervalId: number
     this.connectionsPool.addOnOpenCallback(() => {
@@ -138,8 +141,30 @@ export default class App extends Vue {
       }
     })
 
+    this.loadModels()
+
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
+    })
+
+    EventHub.$on('userControl', (action: string, user: User) => {
+      if (!this.ignoreAndBlockControlService) {
+        return
+      }
+
+      switch (action) {
+        case 'block':
+          this.ignoreAndBlockControlService.addUserToBlockBlackList(user)
+          break
+        case 'ignore':
+          this.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
+          break
+        default:
+          console.error('Unknown userControl action', action)
+      }
+
+      transactionService.filterAndStoreStoredTransactions()
+      this.loadModels()
     })
   }
 
@@ -199,6 +224,18 @@ export default class App extends Vue {
   handleNewTransactions (newTransactions: Transaction[]) {
     if (this.userService) {
       this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
+    }
+  }
+
+  loadModels () {
+    if (this.youTubeRadio) {
+      this.postedUrls = this.youTubeRadio.getPostedUrls()
+    }
+    if (this.userService) {
+      this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
+    }
+    if (this.ignoreAndBlockControlService) {
+      console.log(this.ignoreAndBlockControlService.getPreferences())
     }
   }
 }
