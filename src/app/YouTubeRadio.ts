@@ -5,6 +5,8 @@ import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTube
 import { Transaction } from '@/models/Transaction'
 import { UserServiceInterface } from '@/types/UserServiceInterface'
 import { YouTubeIdExtractor } from '@/app/services/YouTubeIdExtractor'
+import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
+import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
 
 export class YouTubeRadio {
   private readonly transactionService: TransactionService
@@ -48,6 +50,13 @@ export class YouTubeRadio {
         callback(newPostedUrls)
       }
     }
+  }
+
+  public vote (authenticatedUser: AuthenticatedUser, urlModel: YouTubeUrlModel, isPositive: boolean): void {
+    const publicUser = authenticatedUser.getPublicUser()
+    const youTubeUrlVoteModel = new YouTubeUrlVoteModel(urlModel.videoId, publicUser, isPositive)
+    const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
+    this.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
   public extractUrlsFromTransactions (transactions: Transaction[]): YouTubeUrlModel[] {

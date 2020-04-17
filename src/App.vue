@@ -68,6 +68,9 @@ import { User } from '@/models/User'
 import { IgnoreAndBlockControlService } from '@/services/IgnoreAndBlockControlService'
 import IgnoreAndBlockPreferences from '@/components/IgnoreAndBlockPreferences.vue'
 import { PreferencesIgnoreAndBlock } from '@/models/PreferencesIgnoreAndBlock'
+import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
+import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
+import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
 
 @Component({
   components: {
@@ -119,6 +122,8 @@ export default class App extends Vue {
     const transactionTypeResolver = new TransactionTypeResolver()
     transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
     transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, new YouTubeUrlValidator())
+    transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
+    transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
 
     const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
@@ -216,6 +221,16 @@ export default class App extends Vue {
       }
 
       transactionService.filterAndStoreStoredTransactions()
+      this.loadModels()
+    })
+
+    EventHub.$on('vote', (urlModel: YouTubeUrlModel, isPositive: boolean) => {
+      if (!this.youTubeRadio || !this.authenticatedUser) {
+        return
+      }
+
+      this.youTubeRadio.vote(this.authenticatedUser, urlModel, isPositive)
+
       this.loadModels()
     })
   }
