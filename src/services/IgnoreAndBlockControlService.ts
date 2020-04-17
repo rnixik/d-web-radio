@@ -67,6 +67,9 @@ export class IgnoreAndBlockControlService implements IgnoreAndBlockControlServic
   setBlockWhiteListEnabled (enabled: boolean): void {
     const preferences = this.preferencesStorageService.getPreferencesIgnoreAndBlock()
     preferences.isBlockWhiteListEnabled = enabled
+    if (enabled) {
+      preferences.isBlockBlackListEnabled = false
+    }
     this.preferencesStorageService.storePreferencesIgnoreAndBlock(preferences)
   }
   setBlockBlackListEnabled (enabled: boolean): void {
@@ -77,6 +80,9 @@ export class IgnoreAndBlockControlService implements IgnoreAndBlockControlServic
   setIgnoreWhiteListEnabled (enabled: boolean): void {
     const preferences = this.preferencesStorageService.getPreferencesIgnoreAndBlock()
     preferences.isIgnoreWhiteListEnabled = enabled
+    if (enabled) {
+      preferences.isIgnoreBlackListEnabled = false
+    }
     this.preferencesStorageService.storePreferencesIgnoreAndBlock(preferences)
   }
   setIgnoreBlackListEnabled (enabled: boolean): void {

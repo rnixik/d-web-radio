@@ -29,6 +29,11 @@
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
     </div>
+
+    <div>
+      <ignore-and-block-preferences :preferences-ignore-and-block="preferencesIgnoreAndBlock"></ignore-and-block-preferences>
+    </div>
+
     <v-dialog/>
   </div>
 </template>
@@ -61,10 +66,12 @@ import { IgnoreAndBlockFilterService } from '@/services/IgnoreAndBlockFilterServ
 import { EventHub } from '@/components/EventHub'
 import { User } from '@/models/User'
 import { IgnoreAndBlockControlService } from '@/services/IgnoreAndBlockControlService'
-import clearAllTimers = jest.clearAllTimers;
+import IgnoreAndBlockPreferences from '@/components/IgnoreAndBlockPreferences.vue'
+import { PreferencesIgnoreAndBlock } from '@/models/PreferencesIgnoreAndBlock'
 
 @Component({
   components: {
+    IgnoreAndBlockPreferences,
     UsersList,
     LocalSignaling,
     ManualSignaling,
@@ -89,6 +96,7 @@ export default class App extends Vue {
   private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: YouTubeUrlModel[] = []
   private usersWithTransactions: UserWithTransactions[] = []
+  private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
   private broadcastInterval = 10000
 
   $refs!: {
@@ -165,8 +173,46 @@ export default class App extends Vue {
         case 'addToIgnoreWhiteList':
           this.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
           break
+        case 'removeFromBlockBlackList':
+          this.ignoreAndBlockControlService.removeUserFromBlockBlackList(user)
+          break
+        case 'removeFromIgnoreBlackList':
+          this.ignoreAndBlockControlService.removeUserFromIgnoreBlackList(user)
+          break
+        case 'removeFromBlockWhiteList':
+          this.ignoreAndBlockControlService.removeUserFromBlockWhiteList(user)
+          break
+        case 'removeFromIgnoreWhiteList':
+          this.ignoreAndBlockControlService.removeUserFromIgnoreWhiteList(user)
+          break
         default:
           console.error('Unknown userControl action', action)
+      }
+
+      transactionService.filterAndStoreStoredTransactions()
+      this.loadModels()
+    })
+
+    EventHub.$on('setIgnoreAndBlockListEnabled', (list: string, value: boolean) => {
+      if (!this.ignoreAndBlockControlService) {
+        return
+      }
+
+      switch (list) {
+        case 'blockBlack':
+          this.ignoreAndBlockControlService.setBlockBlackListEnabled(value)
+          break
+        case 'ignoreBlack':
+          this.ignoreAndBlockControlService.setIgnoreBlackListEnabled(value)
+          break
+        case 'blockWhite':
+          this.ignoreAndBlockControlService.setBlockWhiteListEnabled(value)
+          break
+        case 'ignoreWhite':
+          this.ignoreAndBlockControlService.setIgnoreWhiteListEnabled(value)
+          break
+        default:
+          console.error('Unknown setIgnoreAndBlockListEnabled list', list)
       }
 
       transactionService.filterAndStoreStoredTransactions()
@@ -241,7 +287,7 @@ export default class App extends Vue {
       this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
     }
     if (this.ignoreAndBlockControlService) {
-      console.log(this.ignoreAndBlockControlService.getPreferences())
+      this.preferencesIgnoreAndBlock = this.ignoreAndBlockControlService.getPreferences()
     }
   }
 }
