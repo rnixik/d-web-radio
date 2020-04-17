@@ -159,6 +159,12 @@ export default class App extends Vue {
         case 'ignore':
           this.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
           break
+        case 'addToBlockWhiteList':
+          this.ignoreAndBlockControlService.addUserToBlockWhiteList(user)
+          break
+        case 'addToIgnoreWhiteList':
+          this.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
+          break
         default:
           console.error('Unknown userControl action', action)
       }

@@ -16,7 +16,9 @@ export default class UsersList extends Vue {
   showDialog (user: User) {
     this.$modal.show('dialog', {
       title: user.login,
-      text: '<p>Click "Block" user if you think it is bot and publishes only flood.</p><p>Click "Ignore" if you do not want see his/her transactions anymore.</p>',
+      text: '<p>Click "Block" user if you think it is bot and publishes only flood.</p>' +
+        '<p>Click "Ignore" if you do not want see his/her transactions anymore.</p>' +
+        '<p>Use whitelists to make a list users whom you trust and block (ignore) others.</p>',
       buttons: [
         {
           title: 'Block',
@@ -29,6 +31,20 @@ export default class UsersList extends Vue {
           title: 'Ignore',
           handler: () => {
             EventHub.$emit('userControl', 'ignore', user)
+            this.$modal.hide('dialog')
+          }
+        },
+        {
+          title: 'Add to whitelist (block-level)',
+          handler: () => {
+            EventHub.$emit('userControl', 'addToBlockWhiteList', user)
+            this.$modal.hide('dialog')
+          }
+        },
+        {
+          title: 'Add to whitelist (ignore-level)',
+          handler: () => {
+            EventHub.$emit('userControl', 'addToIgnoreWhiteList', user)
             this.$modal.hide('dialog')
           }
         },
