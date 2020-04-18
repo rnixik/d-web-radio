@@ -135,7 +135,8 @@ export default class App extends Vue {
       transportService,
       storageService,
       validatorService,
-      ignoreAndBlockFilterService
+      ignoreAndBlockFilterService,
+      5
     )
 
     this.userService = new UserService(cryptoService, transactionService)

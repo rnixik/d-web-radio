@@ -16,19 +16,22 @@ export class TransactionService {
   private cryptoService: CryptoServiceInterface
   private ignoreAndBlockFilterService: IgnoreAndBlockFilterServiceInterface
   private onNewTransactionsCallbacks: ((newTransactions: Transaction[], storedTransactions: Transaction[]) => void)[] = []
+  private maxSignaturesNumber = 0
 
   constructor (
     cryptoService: CryptoServiceInterface,
     transport: TransportServiceInterface,
     storageService: StorageServiceInterface,
     validator: ValidatorServiceInterface,
-    ignoreAndBlockFilterService: IgnoreAndBlockFilterServiceInterface
+    ignoreAndBlockFilterService: IgnoreAndBlockFilterServiceInterface,
+    maxSignaturesNumber: number = 0
   ) {
     this.transport = transport
     this.storageService = storageService
     this.validator = validator
     this.cryptoService = cryptoService
     this.ignoreAndBlockFilterService = ignoreAndBlockFilterService
+    this.maxSignaturesNumber = maxSignaturesNumber
 
     this.transport.addOnIncomingTransactionsCallback((transactions) => {
       this.handleIncomingTransactions(transactions)
@@ -116,12 +119,15 @@ export class TransactionService {
   private updateStoredTransactionFromIncoming (storedTx: Transaction, incomingTx: Transaction) {
     const signatures = storedTx.signatures.concat(incomingTx.signatures)
     const publicKeys: any = {}
-    const uniqueSignatures: Signature[] = []
+    let uniqueSignatures: Signature[] = []
     for (const signature of signatures) {
       if (!publicKeys[signature.publicKey]) {
         publicKeys[signature.publicKey] = true
         uniqueSignatures.push(signature)
       }
+    }
+    if (this.maxSignaturesNumber > 0) {
+      uniqueSignatures = uniqueSignatures.slice(0, this.maxSignaturesNumber)
     }
 
     this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
