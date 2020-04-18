@@ -19,7 +19,7 @@ export class PostedUrl {
     return this.votes.filter((voteModel) => voteModel.isPositive)
   }
 
-  public geNegativeVotes (): YouTubeUrlVoteModel[] {
+  public getNegativeVotes (): YouTubeUrlVoteModel[] {
     return this.votes.filter((voteModel) => !voteModel.isPositive)
   }
 
@@ -31,7 +31,7 @@ export class PostedUrl {
   }
 
   public hasUserVotedNegatively (user: User): boolean {
-    return this.geNegativeVotes()
+    return this.getNegativeVotes()
       .filter(
         (voteModel) => voteModel.user.publicKey === user.publicKey
       ).length > 0
@@ -39,5 +39,9 @@ export class PostedUrl {
 
   public hasUserVoted (user: User): boolean {
     return this.hasUserVotedNegatively(user) || this.hasUserVotedPositively(user)
+  }
+
+  public getScore (): number {
+    return this.getPositiveVotes().length - this.getNegativeVotes().length
   }
 }

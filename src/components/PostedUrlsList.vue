@@ -3,7 +3,7 @@
     Urls:
     <ul v-if="postedUrls && postedUrls.length">
       <li v-for="postedUrl in postedUrls" :key="postedUrl.urlModel.videoId">
-        <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.geNegativeVotes().length }}</span>
+        <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.getNegativeVotes().length }}</span>
         <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
         {{ postedUrl.urlModel.getYouTubeUrl() }} by
         <user :user="postedUrl.urlModel.user"></user>
