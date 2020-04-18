@@ -71,6 +71,7 @@ import { PreferencesIgnoreAndBlock } from '@/models/PreferencesIgnoreAndBlock'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
 import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
 import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
+import { PostedUrl } from '@/app/models/PostedUrl'
 
 @Component({
   components: {
@@ -97,7 +98,7 @@ export default class App extends Vue {
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
-  private postedUrls: YouTubeUrlModel[] = []
+  private postedUrls: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
   private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
   private broadcastInterval = 10000
@@ -225,7 +226,7 @@ export default class App extends Vue {
       this.loadModels()
     })
 
-    EventHub.$on('vote', (urlModel: YouTubeUrlModel, isPositive: boolean) => {
+    EventHub.$on('vote', (urlModel: PostedUrl, isPositive: boolean) => {
       if (!this.youTubeRadio || !this.authenticatedUser) {
         return
       }
@@ -284,7 +285,7 @@ export default class App extends Vue {
     }
   }
 
-  handleNewPostedUrls (postedUrls: YouTubeUrlModel[]) {
+  handleNewPostedUrls (postedUrls: PostedUrl[]) {
     console.log('new urls', postedUrls)
     this.postedUrls = this.postedUrls.concat(postedUrls)
   }

@@ -2,11 +2,11 @@
   <div>
     Urls:
     <ul v-if="postedUrls && postedUrls.length">
-      <li v-for="postedUrl in postedUrls" :key="postedUrl.url">
+      <li v-for="postedUrl in postedUrls" :key="postedUrl.urlModel.videoId">
         <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.geNegativeVotes().length }}</span>
         <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
-        {{ postedUrl.getYouTubeUrl() }} by
-        <user :user="postedUrl.user"></user>
+        {{ postedUrl.urlModel.getYouTubeUrl() }} by
+        <user :user="postedUrl.urlModel.user"></user>
         <span v-if="user && !postedUrl.hasUserVoted(user)">
           <span @click="voteUp(postedUrl)">[UP]</span>
           <span @click="voteDown(postedUrl)">[DOWN]</span>
@@ -24,23 +24,23 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { User as UserModel } from '@/models/User'
 import User from '@/components/User.vue'
 import { EventHub } from '@/components/EventHub'
+import { PostedUrl } from '@/app/models/PostedUrl'
 @Component({
   components: { User }
 })
 export default class PostedUrlsList extends Vue {
-  @Prop({ default: [] }) postedUrls!: YouTubeUrlModel[]
+  @Prop({ default: [] }) postedUrls!: PostedUrl[]
   @Prop({ default: null }) user!: UserModel
 
-  voteUp (urlModel: YouTubeUrlModel) {
-    EventHub.$emit('vote', urlModel, true)
+  voteUp (postedUrl: PostedUrl) {
+    EventHub.$emit('vote', postedUrl, true)
   }
 
-  voteDown (urlModel: YouTubeUrlModel) {
-    EventHub.$emit('vote', urlModel, false)
+  voteDown (postedUrl: PostedUrl) {
+    EventHub.$emit('vote', postedUrl, false)
   }
 }
 </script>

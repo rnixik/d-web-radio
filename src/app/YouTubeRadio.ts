@@ -7,11 +7,12 @@ import { UserServiceInterface } from '@/types/UserServiceInterface'
 import { YouTubeIdExtractor } from '@/app/services/YouTubeIdExtractor'
 import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
+import { PostedUrl } from '@/app/models/PostedUrl'
 
 export class YouTubeRadio {
   private readonly transactionService: TransactionService
   private readonly userService: UserServiceInterface
-  private onNewPostedUrlsCallbacks: ((urls: YouTubeUrlModel[]) => void)[] = []
+  private onNewPostedUrlsCallbacks: ((urls: PostedUrl[]) => void)[] = []
 
   constructor (transactionService: TransactionService, userService: UserServiceInterface) {
     this.transactionService = transactionService
@@ -33,13 +34,13 @@ export class YouTubeRadio {
     return youTubeUrlModel
   }
 
-  public getPostedUrls (): YouTubeUrlModel[] {
+  public getPostedUrls (): PostedUrl[] {
     const storedTransactions = this.transactionService.getTransactions(true)
 
     return this.extractUrlsFromTransactions(storedTransactions)
   }
 
-  public addOnNewPostedUrlsCallback (callback: (urls: YouTubeUrlModel[]) => void) {
+  public addOnNewPostedUrlsCallback (callback: (urls: PostedUrl[]) => void) {
     this.onNewPostedUrlsCallbacks.push(callback)
   }
 
@@ -52,34 +53,35 @@ export class YouTubeRadio {
     }
   }
 
-  public vote (authenticatedUser: AuthenticatedUser, urlModel: YouTubeUrlModel, isPositive: boolean): void {
+  public vote (authenticatedUser: AuthenticatedUser, postedUrl: PostedUrl, isPositive: boolean): void {
     const publicUser = authenticatedUser.getPublicUser()
-    const youTubeUrlVoteModel = new YouTubeUrlVoteModel(urlModel.videoId, publicUser, isPositive)
+    const youTubeUrlVoteModel = new YouTubeUrlVoteModel(postedUrl.urlModel.videoId, publicUser, isPositive)
     const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
     this.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
-  public extractUrlsFromTransactions (transactions: Transaction[]): YouTubeUrlModel[] {
-    const urlsIndex: Map<string, YouTubeUrlModel> = new Map()
+  public extractUrlsFromTransactions (transactions: Transaction[]): PostedUrl[] {
+    const urlsIndex: Map<string, PostedUrl> = new Map()
 
     for (const tx of transactions) {
       if (tx.type === YouTubeUrlTransactionType.t) {
         const urlModel = tx.model as YouTubeUrlModel
-        urlsIndex.set(urlModel.videoId, urlModel)
+        const postedUrl = new PostedUrl(urlModel, [])
+        urlsIndex.set(urlModel.videoId, postedUrl)
       }
     }
 
     for (const tx of transactions) {
       if (tx.type === YouTubeUrlVoteTransactionType.t) {
         const urlVoteModel = tx.model as YouTubeUrlVoteModel
-        const urlModel = urlsIndex.get(urlVoteModel.videoId)
-        if (urlModel) {
-          urlModel.addVote(urlVoteModel)
+        const postedUrl = urlsIndex.get(urlVoteModel.videoId)
+        if (postedUrl) {
+          postedUrl.addVote(urlVoteModel)
         }
       }
     }
 
-    const postedUrls: YouTubeUrlModel[] = []
+    const postedUrls: PostedUrl[] = []
     urlsIndex.forEach((urlModel) => {
       postedUrls.push(urlModel)
     })
