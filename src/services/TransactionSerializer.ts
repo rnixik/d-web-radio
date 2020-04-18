@@ -51,7 +51,7 @@ export class TransactionSerializer implements TransactionSerializerInterface {
     }
 
     if (local && data['d']) {
-      tx.storedAt = data['d']
+      tx.storedAt = new Date(data['d'])
     }
 
     return tx
@@ -79,8 +79,8 @@ export class TransactionSerializer implements TransactionSerializerInterface {
       's': signatures
     }
 
-    if (local) {
-      data['d'] = transaction.storedAt
+    if (local && transaction.storedAt) {
+      data['d'] = transaction.storedAt.toISOString()
     }
 
     return data

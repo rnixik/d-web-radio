@@ -4,10 +4,12 @@ import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
 export class PostedUrl {
   public urlModel: YouTubeUrlModel
+  public storedAt: Date
   public votes: YouTubeUrlVoteModel[]
 
-  constructor (urlModel: YouTubeUrlModel, votes: YouTubeUrlVoteModel[]) {
+  constructor (urlModel: YouTubeUrlModel, storedAt: Date, votes: YouTubeUrlVoteModel[] = []) {
     this.urlModel = urlModel
+    this.storedAt = storedAt
     this.votes = votes
   }
 

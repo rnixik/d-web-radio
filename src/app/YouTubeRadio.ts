@@ -66,7 +66,10 @@ export class YouTubeRadio {
     for (const tx of transactions) {
       if (tx.type === YouTubeUrlTransactionType.t) {
         const urlModel = tx.model as YouTubeUrlModel
-        const postedUrl = new PostedUrl(urlModel, [])
+        const postedUrl = new PostedUrl(
+          urlModel,
+          tx.storedAt ? tx.storedAt : new Date()
+        )
         urlsIndex.set(urlModel.videoId, postedUrl)
       }
     }
@@ -93,6 +96,12 @@ export class YouTubeRadio {
         return -1
       }
       if (scoreA < scoreB) {
+        return 1
+      }
+      if (a.storedAt > b.storedAt) {
+        return -1
+      }
+      if (a.storedAt < b.storedAt) {
         return 1
       }
 

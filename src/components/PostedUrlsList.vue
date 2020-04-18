@@ -7,6 +7,7 @@
         <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
         {{ postedUrl.urlModel.getYouTubeUrl() }} by
         <user :user="postedUrl.urlModel.user"></user>
+        at {{ postedUrl.storedAt.toLocaleString() }}
         <span v-if="user && !postedUrl.hasUserVoted(user)">
           <span @click="voteUp(postedUrl)">[UP]</span>
           <span @click="voteDown(postedUrl)">[DOWN]</span>

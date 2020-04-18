@@ -7,7 +7,7 @@ export class Transaction {
   public type: string
   public model: TransactionModel
   public hash: string
-  public storedAt?: string
+  public storedAt?: Date
   public signatures: Signature[] = []
 
   constructor (creator: User, type: string, model: TransactionModel, hash: string) {

@@ -30,7 +30,7 @@ export class StorageService implements StorageServiceInterface, PreferencesStora
 
     for (const tx of transactions) {
       if (!storedHashIndex.has(tx.hash)) {
-        tx.storedAt = (new Date()).toISOString()
+        tx.storedAt = new Date()
         transactionsToStore.push(tx)
         newStored.push(tx)
       }
