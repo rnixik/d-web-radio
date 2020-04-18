@@ -9301,8 +9301,10 @@ webpack@^4.0.0:
     watchpack "^1.6.0"
     webpack-sources "^1.4.1"
 
-"webrtc-connection@file:../webrtc-connection":
+webrtc-connection@*:
   version "1.1.0"
+  resolved "https://registry.yarnpkg.com/webrtc-connection/-/webrtc-connection-1.1.0.tgz#b587fdfafbf45214197340b8afc903fe2b1ab697"
+  integrity sha512-zV4tkb/lVc8oqk+Zj3BAEORc64V/dcu8a+HeRwpLIH/KVjUkt5ioknkvKq4rQqncaaymq2K1X61cFMCIzSTAXQ==
   dependencies:
     "@types/socket.io-client" "^1.4.32"
     socket.io-client "^2.3.0"
