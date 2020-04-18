@@ -60,13 +60,29 @@ export class YouTubeRadio {
   }
 
   public extractUrlsFromTransactions (transactions: Transaction[]): YouTubeUrlModel[] {
-    const postedUrls: YouTubeUrlModel[] = []
+    const urlsIndex: Map<string, YouTubeUrlModel> = new Map()
 
     for (const tx of transactions) {
       if (tx.type === YouTubeUrlTransactionType.t) {
-        postedUrls.push(tx.model as YouTubeUrlModel)
+        const urlModel = tx.model as YouTubeUrlModel
+        urlsIndex.set(urlModel.videoId, urlModel)
       }
     }
+
+    for (const tx of transactions) {
+      if (tx.type === YouTubeUrlVoteTransactionType.t) {
+        const urlVoteModel = tx.model as YouTubeUrlVoteModel
+        const urlModel = urlsIndex.get(urlVoteModel.videoId)
+        if (urlModel) {
+          urlModel.addVote(urlVoteModel)
+        }
+      }
+    }
+
+    const postedUrls: YouTubeUrlModel[] = []
+    urlsIndex.forEach((urlModel) => {
+      postedUrls.push(urlModel)
+    })
 
     return postedUrls
   }

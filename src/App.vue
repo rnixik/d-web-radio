@@ -24,7 +24,7 @@
     {{ authErrorMessage }}
 
     <div>
-      <posted-urls-list :posted-urls="postedUrls"></posted-urls-list>
+      <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
     </div>
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
