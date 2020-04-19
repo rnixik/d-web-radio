@@ -34,10 +34,30 @@ export class YouTubeRadio {
     return youTubeUrlModel
   }
 
-  public getPostedUrls (): PostedUrl[] {
+  public getPostedUrls (sortByDate = false): PostedUrl[] {
     const storedTransactions = this.transactionService.getTransactions(true)
+    const postedUrls = this.extractUrlsFromTransactions(storedTransactions)
 
-    return this.extractUrlsFromTransactions(storedTransactions)
+    return postedUrls.sort((a: PostedUrl, b: PostedUrl) => {
+      if (!sortByDate) {
+        const scoreA = a.getScore()
+        const scoreB = b.getScore()
+        if (scoreA > scoreB) {
+          return -1
+        }
+        if (scoreA < scoreB) {
+          return 1
+        }
+      }
+      if (a.storedAt > b.storedAt) {
+        return -1
+      }
+      if (a.storedAt < b.storedAt) {
+        return 1
+      }
+
+      return 0
+    })
   }
 
   public addOnNewPostedUrlsCallback (callback: (urls: PostedUrl[]) => void) {
@@ -89,23 +109,6 @@ export class YouTubeRadio {
       postedUrls.push(urlModel)
     })
 
-    return postedUrls.sort((a: PostedUrl, b: PostedUrl) => {
-      const scoreA = a.getScore()
-      const scoreB = b.getScore()
-      if (scoreA > scoreB) {
-        return -1
-      }
-      if (scoreA < scoreB) {
-        return 1
-      }
-      if (a.storedAt > b.storedAt) {
-        return -1
-      }
-      if (a.storedAt < b.storedAt) {
-        return 1
-      }
-
-      return 0
-    })
+    return postedUrls
   }
 }

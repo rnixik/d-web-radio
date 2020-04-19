@@ -24,7 +24,12 @@
     {{ authErrorMessage }}
 
     <div>
+      <h2>Latest posted urls</h2>
       <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
+    </div>
+    <div>
+      <h2>Top posted urls</h2>
+      <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser"></posted-urls-list>
     </div>
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
@@ -58,7 +63,6 @@ import { TransactionTypeResolver } from '@/services/TransactionTypeResolver'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
-import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { UserWithTransactions } from '@/models/UserWithTransactions'
 import { Transaction } from '@/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
@@ -99,6 +103,7 @@ export default class App extends Vue {
   private authenticatedUser?: AuthenticatedUser | null = null
   private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: PostedUrl[] = []
+  private postedUrlsTop: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
   private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
   private broadcastInterval = 10000
@@ -286,8 +291,11 @@ export default class App extends Vue {
   }
 
   handleNewPostedUrls (postedUrls: PostedUrl[]) {
-    console.log('new urls', postedUrls)
-    this.postedUrls = this.postedUrls.concat(postedUrls)
+    if (!this.youTubeRadio) {
+      return
+    }
+    this.postedUrls = this.youTubeRadio.getPostedUrls(true)
+    this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
   }
 
   handleNewTransactions (newTransactions: Transaction[]) {
@@ -298,7 +306,8 @@ export default class App extends Vue {
 
   loadModels () {
     if (this.youTubeRadio) {
-      this.postedUrls = this.youTubeRadio.getPostedUrls()
+      this.postedUrls = this.youTubeRadio.getPostedUrls(true)
+      this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
     }
     if (this.userService) {
       this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
