@@ -23,11 +23,13 @@
     <button @click="signin">Login</button>
     {{ authErrorMessage }}
 
-    <div>
+    <button @click="stressTest">Start stress test</button>
+
+    <div style="height: 200px; overflow: scroll">
       <h2>Latest posted urls</h2>
       <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
     </div>
-    <div>
+    <div style="height: 200px; overflow: scroll">
       <h2>Top posted urls</h2>
       <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser"></posted-urls-list>
     </div>
@@ -38,6 +40,8 @@
     <div>
       <ignore-and-block-preferences :preferences-ignore-and-block="preferencesIgnoreAndBlock"></ignore-and-block-preferences>
     </div>
+
+    <div>Used storage space: {{ (this.usedStorageSpace / 1024 / 1024).toFixed(2) }} MB</div>
 
     <v-dialog/>
   </div>
@@ -106,7 +110,8 @@ export default class App extends Vue {
   private postedUrlsTop: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
   private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
-  private broadcastInterval = 10000
+  private broadcastInterval = 30000
+  private usedStorageSpace = 0
 
   $refs!: {
     messages: HTMLElement
@@ -160,6 +165,8 @@ export default class App extends Vue {
         }, this.broadcastInterval)
       }
     })
+
+    this.usedStorageSpace = storageService.getUsedStorageSpace()
 
     this.loadModels()
 
@@ -314,6 +321,15 @@ export default class App extends Vue {
     }
     if (this.ignoreAndBlockControlService) {
       this.preferencesIgnoreAndBlock = this.ignoreAndBlockControlService.getPreferences()
+    }
+  }
+
+  stressTest () {
+    if (this.youTubeRadio && this.authenticatedUser) {
+      for (let i = 1000; i < 1999; i++) {
+        const url = 'https://www.youtube.com/watch?v=1234567' + i
+        this.youTubeRadio.postUrl(this.authenticatedUser, url)
+      }
     }
   }
 }

@@ -104,4 +104,20 @@ export class StorageService implements StorageServiceInterface, PreferencesStora
 
     localStorage.setItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS, JSON.stringify(serialized))
   }
+
+  public getUsedStorageSpace (): number {
+    let transactionsSpace = 0
+    const transactionsString = localStorage.getItem(this.namespace + ':' + StorageService.STORAGE_KEY_TRANSACTIONS)
+    if (transactionsString) {
+      transactionsSpace = new Blob([transactionsString]).size
+    }
+
+    let preferencesSpace = 0
+    const preferencesString = localStorage.getItem(this.namespace + ':' + StorageService.STORAGE_KEY_PREFERENCES)
+    if (preferencesString) {
+      preferencesSpace = new Blob([preferencesString]).size
+    }
+    console.log(transactionsSpace, preferencesSpace)
+    return transactionsSpace + preferencesSpace
+  }
 }
