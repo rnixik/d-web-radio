@@ -1,6 +1,6 @@
 <template>
   <div>
-    Users:
+    Users ({{ usersWithTransactions.length }}):
     <ul v-if="usersWithTransactions && usersWithTransactions.length">
       <li v-for="userWithTransactions in usersWithTransactions" :key="userWithTransactions.user.publicKey">
         <user :user="userWithTransactions.user"></user>: {{ userWithTransactions.transactions.length }}

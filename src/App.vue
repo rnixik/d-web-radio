@@ -118,15 +118,12 @@ export default class App extends Vue {
   }
 
   created () {
-    this.connectionsPool = new WebRtcConnectionsPool()
+    this.connectionsPool = new WebRtcConnectionsPool(true)
     this.connectionsPool.addOnOpenCallback(() => {
       this.activeConnectionsNum += 1
     })
     this.connectionsPool.addOnCloseCallback(() => {
       this.activeConnectionsNum -= 1
-    })
-    this.connectionsPool.addOnMessageCallback((message: string, peerId: string) => {
-      this.$refs.messages.innerHTML += '<div>' + peerId + ': ' + message + '</div>'
     })
 
     const cryptoService = new CryptoService()

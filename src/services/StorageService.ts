@@ -117,7 +117,7 @@ export class StorageService implements StorageServiceInterface, PreferencesStora
     if (preferencesString) {
       preferencesSpace = new Blob([preferencesString]).size
     }
-    console.log(transactionsSpace, preferencesSpace)
+
     return transactionsSpace + preferencesSpace
   }
 }

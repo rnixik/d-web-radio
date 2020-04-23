@@ -13,10 +13,11 @@ export class TransportService implements TransportServiceInterface {
     this.transactionSerializer = transactionSerializer
 
     this.connectionPool.addOnMessageCallback((message: string, peerId: string) => {
+      console.log('Incoming message', new Blob([message]).size, peerId)
       try {
         const data = JSON.parse(message)
         if (!data || !data.type) {
-          return
+          throw new Error('Cannot parse message')
         }
         if (data.type === 'txs' && data.txsData && data.txsData.length) {
           const transactions = []

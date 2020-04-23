@@ -35,7 +35,6 @@ export class TransactionService {
 
     this.transport.addOnIncomingTransactionsCallback((transactions) => {
       this.handleIncomingTransactions(transactions)
-      console.log('Incoming transactions handled', transactions.length)
     })
   }
 
@@ -68,7 +67,6 @@ export class TransactionService {
   public broadcastTransactions () {
     const storedTransactions = this.storageService.getTransactions()
     this.transport.send(storedTransactions)
-    console.log('Send transactions', storedTransactions.length)
   }
 
   public filterAndStoreStoredTransactions (): void {
