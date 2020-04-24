@@ -82,13 +82,6 @@ export class TransactionService {
     incomingTransactions = this.ignoreAndBlockFilterService.filterBlocked(incomingTransactions)
 
     for (const incomingTx of incomingTransactions) {
-      try {
-        this.validator.validateBase(storedTransactions, incomingTx)
-      } catch (e) {
-        console.error('Incoming transaction is invalid by base rules', e, incomingTx)
-        continue
-      }
-
       let txWasStored = false
       for (const storedTx of storedTransactions) {
         if (incomingTx.hash === storedTx.hash) {
@@ -98,6 +91,13 @@ export class TransactionService {
         }
       }
       if (!txWasStored) {
+        try {
+          this.validator.validateBase(storedTransactions, incomingTx)
+        } catch (e) {
+          console.error('Incoming transaction is invalid by base rules', e, incomingTx)
+          continue
+        }
+
         try {
           this.validator.validateSpecific(storedTransactions, incomingTx)
           transactionsToStore.push(incomingTx)
@@ -129,8 +129,9 @@ export class TransactionService {
     if (this.maxSignaturesNumber > 0) {
       uniqueSignatures = uniqueSignatures.slice(0, this.maxSignaturesNumber)
     }
-
-    this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
+    if (uniqueSignatures.length > storedTx.signatures.length) {
+      this.storageService.storeTransactionSignatures(storedTx, uniqueSignatures)
+    }
   }
 
   private notifyContextAboutNewTransactions (newTransactions: Transaction[], storedTransactions: Transaction[]) {
