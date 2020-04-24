@@ -1,5 +1,6 @@
 <template>
   <span>
+    <span v-html="identicon"></span>
     <span @click="showDialog(user)">{{ user.login }}</span>
   </span>
 </template>
@@ -12,6 +13,11 @@ import { EventHub } from '@/components/EventHub'
 @Component
 export default class UsersList extends Vue {
   @Prop({ default: null }) user!: User
+
+  get identicon () {
+    const jdenticon = require('jdenticon')
+    return jdenticon.toSvg(this.user.publicKey, 24)
+  }
 
   showDialog (user: User) {
     this.$modal.show('dialog', {

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@types/socket.io-client": "^1.4.32",
+    "jdenticon": "^2.2.0",
     "socket.io-client": "^2.3.0",
     "tweetnacl": "^1.0.3",
     "tweetnacl-util": "^0.15.1",
