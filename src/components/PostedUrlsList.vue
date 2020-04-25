@@ -12,6 +12,7 @@
           <span @click="voteUp(postedUrl)">[UP]</span>
           <span @click="voteDown(postedUrl)">[DOWN]</span>
         </span>
+        <span @click="play(postedUrl)">[PLAY]</span>
       </li>
     </ol>
   </div>
@@ -42,6 +43,10 @@ export default class PostedUrlsList extends Vue {
 
   voteDown (postedUrl: PostedUrl) {
     EventHub.$emit('vote', postedUrl, false)
+  }
+
+  play (postedUrl: PostedUrl) {
+    EventHub.$emit('play', postedUrl)
   }
 }
 </script>

@@ -25,6 +25,10 @@
 
     <button @click="stressTest">Start stress test</button>
 
+    <div v-if="playerVideoId">
+      <player :video-id="playerVideoId"></player>
+    </div>
+
     <div style="height: 200px; overflow: scroll">
       <h2>Latest posted urls</h2>
       <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
@@ -80,9 +84,11 @@ import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote
 import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
 import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
 import { PostedUrl } from '@/app/models/PostedUrl'
+import Player from '@/components/Player.vue'
 
 @Component({
   components: {
+    Player,
     IgnoreAndBlockPreferences,
     UsersList,
     LocalSignaling,
@@ -112,6 +118,7 @@ export default class App extends Vue {
   private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
   private broadcastInterval = 30000
   private usedStorageSpace = 0
+  private playerVideoId: string | null = null
 
   $refs!: {
     messages: HTMLElement
@@ -243,6 +250,10 @@ export default class App extends Vue {
       this.youTubeRadio.vote(this.authenticatedUser, urlModel, isPositive)
 
       this.loadModels()
+    })
+
+    EventHub.$on('play', (postedUrl: PostedUrl) => {
+      this.playerVideoId = postedUrl.urlModel.videoId
     })
   }
 

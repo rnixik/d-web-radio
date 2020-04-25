@@ -5,6 +5,15 @@ import VModal from 'vue-js-modal'
 Vue.config.productionTip = false
 Vue.use(VModal, { dialog: true })
 
+const VuePlyr = require('vue-plyr')
+
+Vue.use(VuePlyr.default, {
+  plyr: {
+    fullscreen: { enabled: false }
+  },
+  emit: ['ended']
+})
+
 new Vue({
   render: h => h(App)
 }).$mount('#app')
