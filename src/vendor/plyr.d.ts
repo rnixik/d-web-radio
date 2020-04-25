@@ -32,6 +32,11 @@ declare class Plyr {
 	*/
 	readonly isEmbed: boolean;
 
+  /**
+   * https://developers.google.com/youtube/iframe_api_reference?hl=ru
+   */
+	readonly embed: any;
+
 	/**
 	* Indicates if the current player is playing.
 	*/

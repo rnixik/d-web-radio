@@ -48,8 +48,11 @@ export default class Player extends Vue {
 
   mounted () {
     this.player.on('statechange', () => console.log('event fired'))
+    this.player.on('ended', () => console.log('ended'))
     this.player.on('ready', () => {
       console.log('event fired ready')
+      console.log('duration is', this.player.duration)
+      console.log('title', this.player.embed.getVideoData().title)
       this.player.play()
     })
   }
