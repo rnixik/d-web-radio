@@ -46,9 +46,9 @@ export class ValidatorService implements ValidatorServiceInterface {
     }
   }
 
-  public validateSpecific (storedTransactions: Transaction[], tx: Transaction): void {
+  public async validateSpecific (storedTransactions: Transaction[], tx: Transaction): Promise<void> {
     const specificValidator = this.transactionTypeResolver.getSpecificValidator(tx.type)
-    specificValidator.validate(storedTransactions, tx)
+    await specificValidator.validate(storedTransactions, tx)
   }
 
   private getUserByPublicKey (storedTransactions: Transaction[], publicKey: string): User | null {

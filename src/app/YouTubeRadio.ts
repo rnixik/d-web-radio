@@ -23,15 +23,13 @@ export class YouTubeRadio {
     })
   }
 
-  public postUrl (authenticatedUser: AuthenticatedUser, url: string): YouTubeUrlModel {
+  public async postUrl (authenticatedUser: AuthenticatedUser, url: string): Promise<void> {
     const publicUser = authenticatedUser.getPublicUser()
     const videoIdExtractor = new YouTubeIdExtractor()
     const videoId = videoIdExtractor.extractVideoId(url)
     const youTubeUrlModel = new YouTubeUrlModel(videoId, publicUser)
-    const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
+    const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
     this.transactionService.signAndSend(authenticatedUser, transaction)
-
-    return youTubeUrlModel
   }
 
   public getPostedUrls (sortByDate = false): PostedUrl[] {
@@ -73,10 +71,10 @@ export class YouTubeRadio {
     }
   }
 
-  public vote (authenticatedUser: AuthenticatedUser, postedUrl: PostedUrl, isPositive: boolean): void {
+  public async vote (authenticatedUser: AuthenticatedUser, postedUrl: PostedUrl, isPositive: boolean): Promise<void> {
     const publicUser = authenticatedUser.getPublicUser()
     const youTubeUrlVoteModel = new YouTubeUrlVoteModel(postedUrl.urlModel.videoId, publicUser, isPositive)
-    const transaction = this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
+    const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
     this.transactionService.signAndSend(authenticatedUser, transaction)
   }
 

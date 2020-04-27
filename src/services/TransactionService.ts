@@ -38,10 +38,10 @@ export class TransactionService {
     })
   }
 
-  public createTransaction (creator: User, type: string, model: TransactionModel): Transaction {
+  public async createTransaction (creator: User, type: string, model: TransactionModel): Promise<Transaction> {
     const hash = this.cryptoService.calculateTransactionHash(creator, type, model)
     const transaction = new Transaction(creator, type, model, hash)
-    this.validator.validateSpecific(this.getTransactions(), transaction)
+    await this.validator.validateSpecific(this.getTransactions(), transaction)
 
     return transaction
   }
@@ -75,7 +75,7 @@ export class TransactionService {
     this.storageService.replaceAllTransactions(filteredTransactions)
   }
 
-  private handleIncomingTransactions (incomingTransactions: Transaction[]) {
+  private async handleIncomingTransactions (incomingTransactions: Transaction[]): Promise<void> {
     const storedTransactions = this.storageService.getTransactions()
     const transactionsToStore: Transaction[] = []
 
@@ -99,7 +99,7 @@ export class TransactionService {
         }
 
         try {
-          this.validator.validateSpecific(storedTransactions, incomingTx)
+          await this.validator.validateSpecific(storedTransactions, incomingTx)
           transactionsToStore.push(incomingTx)
           storedTransactions.push(incomingTx)
         } catch (e) {

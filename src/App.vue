@@ -29,6 +29,8 @@
       <player :video-id="playerVideoId"></player>
     </div>
 
+    <div id="validator-player-container" style="display: none;"></div>
+
     <div style="height: 200px; overflow: scroll">
       <h2>Latest posted urls</h2>
       <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
@@ -134,9 +136,12 @@ export default class App extends Vue {
     })
 
     const cryptoService = new CryptoService()
+    const youTubeUrlValidator = new YouTubeUrlValidator()
+    youTubeUrlValidator.maxVideoDuration = 300
+
     const transactionTypeResolver = new TransactionTypeResolver()
     transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
-    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, new YouTubeUrlValidator())
+    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
     transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
     transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
 
@@ -265,28 +270,29 @@ export default class App extends Vue {
     this.input = ''
   }
 
-  addUrl () {
+  async addUrl () {
     if (!this.connectionsPool || !this.url || !this.youTubeRadio || !this.authenticatedUser) {
       return
     }
     this.postUrlErrorMessage = ''
 
     try {
-      this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
+      await this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
       this.url = ''
     } catch (e) {
+      console.error(e)
       this.postUrlErrorMessage = e.toString()
     }
   }
 
-  register () {
+  async register () {
     if (!this.userService) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = this.userService.register(this.login, this.password)
+      this.authenticatedUser = await this.userService.register(this.login, this.password)
     } catch (e) {
       this.authErrorMessage = e.toString()
     }

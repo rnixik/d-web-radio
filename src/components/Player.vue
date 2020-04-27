@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { Component, Watch, Vue, Prop } from 'vue-property-decorator'
-import Plyr from '@/vendor/plyr'
+import Plyr from 'plyr'
 
 @Component
 export default class Player extends Vue {
@@ -52,7 +52,10 @@ export default class Player extends Vue {
     this.player.on('ready', () => {
       console.log('event fired ready')
       console.log('duration is', this.player.duration)
-      console.log('title', this.player.embed.getVideoData().title)
+      const playerAny = this.player as any
+      if (playerAny && playerAny.embed) {
+        console.log('title', playerAny.embed.getVideoData().title)
+      }
       this.player.play()
     })
   }

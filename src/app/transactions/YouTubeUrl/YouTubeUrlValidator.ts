@@ -2,9 +2,12 @@ import { SpecificValidator } from '@/types/SpecificValidator'
 import { Transaction } from '@/models/Transaction'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
+import Plyr from 'plyr'
 
 export class YouTubeUrlValidator implements SpecificValidator {
-  public validate (storedTransactions: Transaction[], tx: Transaction): void {
+  public maxVideoDuration: number = 600
+
+  public async validate (storedTransactions: Transaction[], tx: Transaction): Promise<void> {
     const youTubeUrl = tx.model as YouTubeUrlModel
     if (!youTubeUrl.videoId) {
       throw new Error('Empty video ID')
@@ -23,5 +26,34 @@ export class YouTubeUrlValidator implements SpecificValidator {
         throw new Error('Url already posted')
       }
     }
+
+    const validatorPlayerElement = document.getElementById('validator-player-container')
+    if (!validatorPlayerElement) {
+      throw new Error('YouTube validator configured incorrectly')
+    }
+
+    const playerElement = document.createElement('div') as HTMLDivElement
+    playerElement.setAttribute('data-plyr-provider', 'youtube')
+    playerElement.setAttribute('data-plyr-embed-id', youTubeUrl.videoId)
+    validatorPlayerElement.append(playerElement)
+
+    const player = new Plyr(playerElement)
+
+    return new Promise((resolve, reject) => {
+      player.on('ready', () => {
+        console.log('event fired ready')
+        console.log('duration is', player.duration)
+        const playerAny = player as any
+        if (playerAny && playerAny.embed) {
+          console.log('title', playerAny.embed.getVideoData().title)
+        }
+
+        if (player.duration > this.maxVideoDuration) {
+          reject(new Error('Video is too long'))
+        }
+
+        resolve()
+      })
+    })
   }
 }

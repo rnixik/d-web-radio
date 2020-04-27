@@ -7,7 +7,7 @@ export class UserValidator implements SpecificValidator {
   public loginMinLength = 1
   public loginMaxLength = 12
 
-  public validate (storedTransactions: Transaction[], tx: Transaction): void {
+  public async validate (storedTransactions: Transaction[], tx: Transaction): Promise<void> {
     const user = tx.model as User
     if (user.login.length < 1) {
       throw new Error('Empty login')

@@ -18,10 +18,10 @@ export class UserService implements UserServiceInterface {
     this.transactionService = transitionService
   }
 
-  public register (login: string, password: string): AuthenticatedUser {
+  public async register (login: string, password: string): Promise<AuthenticatedUser> {
     const authenticatedUser = this.cryptoService.getUserByLoginAndPassword(login, password)
     const publicUser = authenticatedUser.getPublicUser()
-    const transaction = this.transactionService.createTransaction(publicUser, UserTransactionType.t, publicUser)
+    const transaction = await this.transactionService.createTransaction(publicUser, UserTransactionType.t, publicUser)
     this.transactionService.signAndSend(authenticatedUser, transaction)
 
     return authenticatedUser

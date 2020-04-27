@@ -4,7 +4,7 @@ import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote
 import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
 
 export class YouTubeUrlVoteValidator implements SpecificValidator {
-  public validate (storedTransactions: Transaction[], tx: Transaction): void {
+  public async validate (storedTransactions: Transaction[], tx: Transaction): Promise<void> {
     const youTubeUrlVote = tx.model as YouTubeUrlVoteModel
     if (!youTubeUrlVote.videoId) {
       throw new Error('Empty video ID')
