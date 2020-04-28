@@ -135,7 +135,6 @@ export default class App extends Vue {
       this.activeConnectionsNum -= 1
     })
 
-    const cryptoService = new CryptoService()
     const youTubeUrlValidator = new YouTubeUrlValidator()
     youTubeUrlValidator.maxVideoDuration = 300
 
@@ -145,6 +144,7 @@ export default class App extends Vue {
     transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
     transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
 
+    const cryptoService = new CryptoService(transactionTypeResolver)
     const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
     const storageService = new StorageService(this.storageNamespace, transactionSerializer)
     const transportService = new TransportService(this.connectionsPool, transactionSerializer)

@@ -6,8 +6,15 @@ import { Transaction } from '@/models/Transaction'
 import { Signature } from '@/models/Signature'
 import { CryptoServiceInterface } from '@/types/CryptoServiceInterface'
 import { User } from '@/models/User'
+import { TransactionTypeResolverInterface } from '@/types/TransactionTypeResolverInterface'
 
 export class CryptoService implements CryptoServiceInterface {
+  private readonly transactionTypeResolver: TransactionTypeResolverInterface
+
+  constructor (transactionTypeResolver: TransactionTypeResolverInterface) {
+    this.transactionTypeResolver = transactionTypeResolver
+  }
+
   public getUserByLoginAndPassword (login: string, password: string): AuthenticatedUser {
     let seed = password + login
     const pair = CryptoService.getPairBySeed(seed)
@@ -20,7 +27,10 @@ export class CryptoService implements CryptoServiceInterface {
   }
 
   public calculateTransactionHash (creator: User, type: string, model: TransactionModel): string {
-    const str = JSON.stringify([creator, type, model])
+    const payloadSerializer = this.transactionTypeResolver.getPayloadSerializer(type)
+    const modelPayload = payloadSerializer.modelToPayload(model)
+
+    const str = JSON.stringify([creator, type, modelPayload])
     const hash = nacl.hash(util.decodeUTF8(str))
     const shortHash = hash.slice(0, 16)
 

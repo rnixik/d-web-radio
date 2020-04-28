@@ -51,7 +51,7 @@ export class YouTubeUrlValidator implements SpecificValidator {
     }, this.youtubeValidationTimeout)
 
     return new Promise((resolve, reject) => {
-      const timerId = setTimeout(() => {
+      setTimeout(() => {
         reject(new Error('Validation with YouTube is timed out'))
       }, this.youtubeValidationTimeout)
 
