@@ -19,16 +19,22 @@ describe('YouTube video id validator', () => {
     ['UCNCYBBI44YViXw7vBrqCZcg', 'Incorrect video ID'],
     ['9sTQ0QdkN3Q', 'Url already posted']
   ])('Throws error when video id is incorrect: %s', (videoId, errorString) => {
-    expect(() => {
-      (tx.model as YouTubeUrlModel).videoId = videoId
-      validator.validate([ storedTransaction ], tx)
-    }).toThrow(errorString)
+    expect.assertions(1);
+
+    (tx.model as YouTubeUrlModel).videoId = videoId
+
+    return expect(validator.validate([ storedTransaction ], tx))
+      .rejects
+      .toThrow(errorString)
   })
 
   test('Transaction is Valid', () => {
-    expect(() => {
-      (tx.model as YouTubeUrlModel).videoId = 'dQw4w9WgXcQ'
-      validator.validate([ storedTransaction ], tx)
-    }).not.toThrow()
+    expect.assertions(1);
+
+    (tx.model as YouTubeUrlModel).videoId = 'dQw4w9WgXcQ'
+
+    return expect(validator.validate([ storedTransaction ], tx))
+      .resolves
+      .not.toThrow()
   })
 })

@@ -27,6 +27,12 @@ export class YouTubeUrlValidator implements SpecificValidator {
       }
     }
 
+    // Validate using YouTube
+
+    if (typeof document === 'undefined') {
+      return
+    }
+
     const validatorPlayerElement = document.getElementById('validator-player-container')
     if (!validatorPlayerElement) {
       throw new Error('YouTube validator configured incorrectly')
