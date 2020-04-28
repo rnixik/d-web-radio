@@ -5,7 +5,8 @@ import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import Plyr from 'plyr'
 
 export class YouTubeUrlValidator implements SpecificValidator {
-  public maxVideoDuration: number = 600
+  public maxVideoDuration: number = 600 // seconds
+  public youtubeValidationTimeout = 10000
 
   public async validate (storedTransactions: Transaction[], tx: Transaction): Promise<void> {
     const youTubeUrl = tx.model as YouTubeUrlModel
@@ -44,11 +45,17 @@ export class YouTubeUrlValidator implements SpecificValidator {
     validatorPlayerElement.append(playerElement)
 
     const player = new Plyr(playerElement)
+    setTimeout(() => {
+      playerElement.remove()
+      player.destroy()
+    }, this.youtubeValidationTimeout)
 
     return new Promise((resolve, reject) => {
+      const timerId = setTimeout(() => {
+        reject(new Error('Validation with YouTube is timed out'))
+      }, this.youtubeValidationTimeout)
+
       player.on('ready', () => {
-        console.log('event fired ready')
-        console.log('duration is', player.duration)
         const playerAny = player as any
         if (playerAny && playerAny.embed) {
           console.log('title', playerAny.embed.getVideoData().title)
