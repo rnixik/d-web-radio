@@ -40,7 +40,7 @@ export class TransactionSerializer implements TransactionSerializerInterface {
     const creator = new User(data['u']['l'], data['u']['pk'])
     const type: string = data['t']
     const payloadSerializer = this.transactionTypeResolver.getPayloadSerializer(type)
-    const model: TransactionModel = payloadSerializer.fromPayloadToModel(data['p'], creator)
+    const model: TransactionModel = payloadSerializer.fromPayloadToModel(data['p'], creator, local)
 
     const tx = new Transaction(creator, type, model, data['h'])
 
@@ -74,7 +74,7 @@ export class TransactionSerializer implements TransactionSerializerInterface {
         'pk': transaction.creator.publicKey
       },
       't': transaction.type,
-      'p': payloadSerializer.modelToPayload(transaction.model),
+      'p': payloadSerializer.modelToPayload(transaction.model, local),
       'h': transaction.hash,
       's': signatures
     }

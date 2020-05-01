@@ -4,8 +4,10 @@ import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSe
 import { TransactionModel } from '@/types/TransactionModel'
 
 export class YouTubeUrlModel implements TransactionModel {
-  public videoId: string;
+  public videoId: string
   public user: User
+  public duration: number | null = null
+  public title: string | null = null
 
   constructor (videoId: string, user: User) {
     this.videoId = videoId

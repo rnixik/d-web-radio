@@ -28,7 +28,7 @@ export class CryptoService implements CryptoServiceInterface {
 
   public calculateTransactionHash (creator: User, type: string, model: TransactionModel): string {
     const payloadSerializer = this.transactionTypeResolver.getPayloadSerializer(type)
-    const modelPayload = payloadSerializer.modelToPayload(model)
+    const modelPayload = payloadSerializer.modelToPayload(model, false)
 
     const str = JSON.stringify([creator, type, modelPayload])
     const hash = nacl.hash(util.decodeUTF8(str))

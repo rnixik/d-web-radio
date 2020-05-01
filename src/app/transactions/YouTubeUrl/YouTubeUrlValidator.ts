@@ -58,10 +58,11 @@ export class YouTubeUrlValidator implements SpecificValidator {
       player.on('ready', () => {
         const playerAny = player as any
         if (playerAny && playerAny.embed) {
-          console.log('title', playerAny.embed.getVideoData().title)
+          youTubeUrl.title = playerAny.embed.getVideoData().title
         }
+        youTubeUrl.duration = player.duration
 
-        if (player.duration > this.maxVideoDuration) {
+        if (youTubeUrl.duration > this.maxVideoDuration) {
           reject(new Error('Video is too long'))
         }
 
