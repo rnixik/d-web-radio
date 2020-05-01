@@ -1,1 +1,4 @@
-export interface ConnectionPoolInterface {  addOnMessageCallback(callback: (message: string, peerId: string) => void): void;  sendMessage(message: string): void;}
+export interface ConnectionPoolInterface {
+  addOnMessageCallback(callback: (message: string, peerId: string) => void): void;
+  sendMessage(message: string): void;
+}
