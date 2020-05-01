@@ -62,6 +62,10 @@ export class YouTubeUrlValidator implements SpecificValidator {
         }
         youTubeUrl.duration = player.duration
 
+        if (!youTubeUrl.duration) {
+          reject(new Error('Video is unavailable'))
+        }
+
         if (youTubeUrl.duration > this.maxVideoDuration) {
           reject(new Error('Video is too long'))
         }
