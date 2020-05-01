@@ -1,14 +1,14 @@
 import { Transaction } from '@/models/Transaction'
-import { WebRtcConnectionsPool } from 'webrtc-connection'
 import { TransportServiceInterface } from '@/types/TransportServiceInterface'
 import { TransactionSerializerInterface } from '@/types/TransactionSerializerInterface'
+import { ConnectionPoolInterface } from '@/types/ConnectionPoolInterface'
 
 export class TransportService implements TransportServiceInterface {
-  private connectionPool: WebRtcConnectionsPool
+  private connectionPool: ConnectionPoolInterface
   private transactionSerializer: TransactionSerializerInterface
   private onIncomingTransactionsCallbacks: ((transactions: Transaction[]) => void)[] = []
 
-  constructor (connectionPool: WebRtcConnectionsPool, transactionSerializer: TransactionSerializerInterface) {
+  constructor (connectionPool: ConnectionPoolInterface, transactionSerializer: TransactionSerializerInterface) {
     this.connectionPool = connectionPool
     this.transactionSerializer = transactionSerializer
 
