@@ -1,15 +1,19 @@
 <template>
   <div id="app">
-    <LocalSignaling :connectionsPool="connectionsPool"/>
-    <ManualSignaling v-if="showManualConnection" :connectionsPool="connectionsPool"/>
-    <button @click="showManualConnection = true">Manual connection</button>
-    <SocketsSignaling :connectionsPool="connectionsPool"/>
-    <div>Active connections: {{ activeConnectionsNum }}</div>
+    <div>
+      Namespace: <input v-model="namespace">
+      <button @click="enterNamespace()">Begin</button>
+    </div>
 
-    <input v-model="input" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="sendMessage">Send</button>
-    <div ref="messages" style="height: 100px; overflow: scroll"></div>
+    <div v-if="connectionsPool">
+      <LocalSignaling :connectionsPool="connectionsPool"/>
+      <ManualSignaling v-if="showManualConnection" :connectionsPool="connectionsPool"/>
+      <button @click="showManualConnection = true">Manual connection</button>
+      <SocketsSignaling :room="namespace" :connectionsPool="connectionsPool"/>
+      <div>Active connections: {{ activeConnectionsNum }}</div>
+    </div>
 
-    <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
+    Add video (link to YouTube): <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
 
     {{ postUrlErrorMessage }}
 
@@ -22,8 +26,6 @@
     <button @click="register">Register</button>
     <button @click="signin">Login</button>
     {{ authErrorMessage }}
-
-    <button @click="stressTest">Start stress test</button>
 
     <div v-if="playerVideoId" style="width: 640px;">
       <player :video-id="playerVideoId" :playlist="playlist"></player>
@@ -48,7 +50,7 @@
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
     </div>
 
-    <div>
+    <div v-if="preferencesIgnoreAndBlock">
       <ignore-and-block-preferences :preferences-ignore-and-block="preferencesIgnoreAndBlock"></ignore-and-block-preferences>
     </div>
 
@@ -107,88 +109,32 @@ import MyTransactions from '@/components/MyTransactions.vue'
   }
 })
 export default class App extends Vue {
-  private connectionsPool?: WebRtcConnectionsPool
+  private namespace = 'demo'
+  private connectionsPool: WebRtcConnectionsPool | null = null
   private activeConnectionsNum: number = 0
   private showManualConnection: boolean = false
-  private input = ''
   private url = ''
   private login = ''
   private password = ''
   private authErrorMessage = ''
   private postUrlErrorMessage = ''
   private userService?: UserService
+  private transactionService?: TransactionService
   private ignoreAndBlockControlService?: IgnoreAndBlockControlService
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
-  private storageNamespace: string = 'webrtc_dapp'
   private postedUrls: PostedUrl[] = []
   private postedUrlsTop: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
   private myTransactions: Transaction[] = []
-  private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
+  private preferencesIgnoreAndBlock: PreferencesIgnoreAndBlock | null = null
   private broadcastInterval = 30000
   private usedStorageSpace = 0
   private playerVideoId: string | null = null
   private playlist: string[] = []
   private playingListId: string = ''
 
-  $refs!: {
-    messages: HTMLElement
-  }
-
   created () {
-    this.connectionsPool = new WebRtcConnectionsPool(true)
-    this.connectionsPool.addOnOpenCallback(() => {
-      this.activeConnectionsNum += 1
-    })
-    this.connectionsPool.addOnCloseCallback(() => {
-      this.activeConnectionsNum -= 1
-    })
-
-    const youTubeUrlValidator = new YouTubeUrlValidator()
-    youTubeUrlValidator.maxVideoDuration = 300
-
-    const transactionTypeResolver = new TransactionTypeResolver()
-    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
-    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
-    transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
-    transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
-
-    const cryptoService = new CryptoService(transactionTypeResolver)
-    const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
-    const storageService = new StorageService(this.storageNamespace, transactionSerializer)
-    const transportService = new TransportService(this.connectionsPool, transactionSerializer)
-    const validatorService = new ValidatorService(cryptoService, transactionTypeResolver)
-    const ignoreAndBlockFilterService = new IgnoreAndBlockFilterService(storageService)
-    const transactionService = new TransactionService(
-      cryptoService,
-      transportService,
-      storageService,
-      validatorService,
-      ignoreAndBlockFilterService,
-      5
-    )
-
-    this.userService = new UserService(cryptoService, transactionService)
-    this.ignoreAndBlockControlService = new IgnoreAndBlockControlService(storageService)
-    this.youTubeRadio = new YouTubeRadio(transactionService, this.userService)
-    this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
-
-    transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
-
-    let broadcastIntervalId: number
-    this.connectionsPool.addOnOpenCallback(() => {
-      if (!broadcastIntervalId) {
-        broadcastIntervalId = window.setInterval(() => {
-          transactionService.broadcastTransactions()
-        }, this.broadcastInterval)
-      }
-    })
-
-    this.usedStorageSpace = storageService.getUsedStorageSpace()
-
-    this.loadModels()
-
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
     })
@@ -227,8 +173,10 @@ export default class App extends Vue {
           console.error('Unknown userControl action', action)
       }
 
-      transactionService.filterAndStoreStoredTransactions()
-      this.loadModels()
+      if (this.transactionService) {
+        this.transactionService.filterAndStoreStoredTransactions()
+        this.loadModels()
+      }
     })
 
     EventHub.$on('setIgnoreAndBlockListEnabled', (list: string, value: boolean) => {
@@ -253,8 +201,10 @@ export default class App extends Vue {
           console.error('Unknown setIgnoreAndBlockListEnabled list', list)
       }
 
-      transactionService.filterAndStoreStoredTransactions()
-      this.loadModels()
+      if (this.transactionService) {
+        this.transactionService.filterAndStoreStoredTransactions()
+        this.loadModels()
+      }
     })
 
     EventHub.$on('vote', (urlModel: PostedUrl, isPositive: boolean) => {
@@ -274,12 +224,59 @@ export default class App extends Vue {
     })
   }
 
-  sendMessage () {
-    if (!this.connectionsPool || !this.input) {
-      return
-    }
-    this.connectionsPool.sendMessage(this.input)
-    this.input = ''
+  enterNamespace () {
+    this.connectionsPool = new WebRtcConnectionsPool(true)
+    this.connectionsPool.addOnOpenCallback(() => {
+      this.activeConnectionsNum += 1
+    })
+    this.connectionsPool.addOnCloseCallback(() => {
+      this.activeConnectionsNum -= 1
+    })
+
+    const youTubeUrlValidator = new YouTubeUrlValidator()
+    youTubeUrlValidator.maxVideoDuration = 300
+
+    const transactionTypeResolver = new TransactionTypeResolver()
+    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
+    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
+    transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
+    transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
+
+    const cryptoService = new CryptoService(transactionTypeResolver)
+    const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
+    const storageService = new StorageService(this.namespace, transactionSerializer)
+    const transportService = new TransportService(this.connectionsPool, transactionSerializer, this.namespace)
+    const validatorService = new ValidatorService(cryptoService, transactionTypeResolver)
+    const ignoreAndBlockFilterService = new IgnoreAndBlockFilterService(storageService)
+    this.transactionService = new TransactionService(
+      cryptoService,
+      transportService,
+      storageService,
+      validatorService,
+      ignoreAndBlockFilterService,
+      5
+    )
+
+    this.userService = new UserService(cryptoService, this.transactionService)
+    this.ignoreAndBlockControlService = new IgnoreAndBlockControlService(storageService)
+    this.youTubeRadio = new YouTubeRadio(this.transactionService, this.userService)
+    this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
+
+    this.transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
+    const transactionService = this.transactionService
+
+    let broadcastIntervalId: number
+    this.connectionsPool.addOnOpenCallback(() => {
+      if (!broadcastIntervalId) {
+        broadcastIntervalId = window.setInterval(() => {
+          transactionService.broadcastTransactions()
+        }, this.broadcastInterval)
+      }
+    })
+
+    this.usedStorageSpace = storageService.getUsedStorageSpace()
+
+    this.loadModels()
   }
 
   async addUrl () {

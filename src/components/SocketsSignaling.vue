@@ -2,7 +2,6 @@
   <div>
     <div v-if="!signalingIsConnected">
       <label>Address: <input v-model="address" :disabled="connectingSignaling"></label>
-      <label>Room: <input v-model="room" :disabled="connectingSignaling"></label>
       <button @click="connect">Connect</button>
     </div>
     <div v-if="signalingIsConnected">Signaling is CONNECTED, waiting for peers</div>
@@ -17,9 +16,9 @@ import { SocketIoSignaling, WebRtcConnectionsPool } from 'webrtc-connection'
 @Component
 export default class SocketsSignaling extends Vue {
   @Prop() connectionsPool?: WebRtcConnectionsPool
+  @Prop({ default: 'example' }) room!: string
   signaling?: SocketIoSignaling
   address: string = 'https://signaler.local:8881'
-  room: string = 'example'
   peerConnected: boolean = false
   connectingSignaling: boolean = false
   signalingIsConnected: boolean = false
