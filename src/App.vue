@@ -39,6 +39,11 @@
       <h2>Top posted urls</h2>
       <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser" list-id="top"></posted-urls-list>
     </div>
+
+    <div v-if="myTransactions && authenticatedUser">
+      <my-transactions :transactions="myTransactions"></my-transactions>
+    </div>
+
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
     </div>
@@ -87,9 +92,11 @@ import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouT
 import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
 import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
+import MyTransactions from '@/components/MyTransactions.vue'
 
 @Component({
   components: {
+    MyTransactions,
     Player,
     IgnoreAndBlockPreferences,
     UsersList,
@@ -117,6 +124,7 @@ export default class App extends Vue {
   private postedUrls: PostedUrl[] = []
   private postedUrlsTop: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
+  private myTransactions: Transaction[] = []
   private preferencesIgnoreAndBlock?: PreferencesIgnoreAndBlock
   private broadcastInterval = 30000
   private usedStorageSpace = 0
@@ -310,6 +318,7 @@ export default class App extends Vue {
 
     try {
       this.authenticatedUser = this.userService.login(this.login, this.password)
+      this.loadModels()
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
@@ -337,6 +346,14 @@ export default class App extends Vue {
     }
     if (this.userService) {
       this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
+      if (this.authenticatedUser) {
+        for (const uwt of this.usersWithTransactions) {
+          if (uwt.user.publicKey === this.authenticatedUser.publicKey) {
+            this.myTransactions = uwt.transactions
+            break
+          }
+        }
+      }
     }
     if (this.ignoreAndBlockControlService) {
       this.preferencesIgnoreAndBlock = this.ignoreAndBlockControlService.getPreferences()
