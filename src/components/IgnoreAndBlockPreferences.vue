@@ -49,8 +49,8 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import User from '@/components/User.vue'
-import { User as UserModel } from '@/models/User'
-import { PreferencesIgnoreAndBlock } from '@/models/PreferencesIgnoreAndBlock'
+import { User as UserModel } from 'd-web-core/lib/models/User'
+import { PreferencesIgnoreAndBlock } from 'd-web-core/lib/models/PreferencesIgnoreAndBlock'
 import { EventHub } from '@/components/EventHub'
 
 @Component({

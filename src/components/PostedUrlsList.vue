@@ -26,7 +26,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { User as UserModel } from '@/models/User'
+import { User as UserModel } from 'd-web-core/lib/models/User'
 import User from '@/components/User.vue'
 import { EventHub } from '@/components/EventHub'
 import { PostedUrl } from '@/app/models/PostedUrl'

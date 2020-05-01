@@ -1,5 +1,5 @@
-import { SpecificValidator } from '@/types/SpecificValidator'
-import { Transaction } from '@/models/Transaction'
+import { SpecificValidator } from 'd-web-core/lib/types/SpecificValidator'
+import { Transaction } from 'd-web-core/lib/models/Transaction'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
 import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
 

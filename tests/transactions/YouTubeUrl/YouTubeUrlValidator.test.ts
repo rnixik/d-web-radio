@@ -1,8 +1,8 @@
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
-import { Transaction } from '@/models/Transaction'
+import { Transaction } from 'd-web-core/lib/models/Transaction'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
-import { User } from '@/models/User'
+import { User } from 'd-web-core/lib/models/User'
 
 const validator = new YouTubeUrlValidator()
 const someUser = new User('someLogin', 'someKey')

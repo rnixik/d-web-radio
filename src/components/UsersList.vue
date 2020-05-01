@@ -11,7 +11,7 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { UserWithTransactions } from '@/models/UserWithTransactions'
+import { UserWithTransactions } from 'd-web-core/lib/models/UserWithTransactions'
 import User from '@/components/User.vue'
 @Component({
   components: { User }

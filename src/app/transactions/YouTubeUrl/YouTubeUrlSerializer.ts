@@ -1,6 +1,6 @@
-import { ModelSerializer } from '@/types/ModelSerializer'
-import { TransactionModel } from '@/types/TransactionModel'
-import { User } from '@/models/User'
+import { ModelSerializer } from 'd-web-core/lib/types/ModelSerializer'
+import { TransactionModel } from 'd-web-core/lib/types/TransactionModel'
+import { User } from 'd-web-core/lib/models/User'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
 export class YouTubeUrlSerializer implements ModelSerializer {

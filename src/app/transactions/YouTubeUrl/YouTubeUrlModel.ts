@@ -1,7 +1,7 @@
-import { User } from '@/models/User'
-import { ModelSerializer } from '@/types/ModelSerializer'
+import { User } from 'd-web-core/lib/models/User'
+import { ModelSerializer } from 'd-web-core/lib/types/ModelSerializer'
 import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
-import { TransactionModel } from '@/types/TransactionModel'
+import { TransactionModel } from 'd-web-core/lib/types/TransactionModel'
 
 export class YouTubeUrlModel implements TransactionModel {
   public videoId: string

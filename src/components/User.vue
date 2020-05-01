@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { Component, Emit, Vue, Prop } from 'vue-property-decorator'
-import { User } from '@/models/User'
+import { User } from 'd-web-core/lib/models/User'
 import { EventHub } from '@/components/EventHub'
 
 @Component

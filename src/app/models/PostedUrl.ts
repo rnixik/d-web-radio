@@ -1,5 +1,5 @@
 import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
-import { User } from '@/models/User'
+import { User } from 'd-web-core/lib/models/User'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 
 export class PostedUrl {
