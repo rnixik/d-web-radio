@@ -36,6 +36,7 @@ import { PostedUrl } from '@/app/models/PostedUrl'
 export default class PostedUrlsList extends Vue {
   @Prop({ default: [] }) postedUrls!: PostedUrl[]
   @Prop({ default: null }) user!: UserModel
+  @Prop({ default: '' }) listId!: string
 
   voteUp (postedUrl: PostedUrl) {
     EventHub.$emit('vote', postedUrl, true)
@@ -46,7 +47,7 @@ export default class PostedUrlsList extends Vue {
   }
 
   play (postedUrl: PostedUrl) {
-    EventHub.$emit('play', postedUrl)
+    EventHub.$emit('play', postedUrl, this.listId)
   }
 }
 </script>

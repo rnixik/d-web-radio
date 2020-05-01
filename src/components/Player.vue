@@ -24,6 +24,7 @@ import Plyr from 'plyr'
 @Component
 export default class Player extends Vue {
   @Prop({ default: null }) videoId!: string
+  @Prop({ default: [] }) playlist!: string[]
 
   $refs!: {
     plyr: any
@@ -47,17 +48,25 @@ export default class Player extends Vue {
   }
 
   mounted () {
-    this.player.on('statechange', () => console.log('event fired'))
-    this.player.on('ended', () => console.log('ended'))
+    this.player.on('ended', () => {
+      this.playNextVideoInPlaylist()
+    })
     this.player.on('ready', () => {
-      console.log('event fired ready')
-      console.log('duration is', this.player.duration)
-      const playerAny = this.player as any
-      if (playerAny && playerAny.embed) {
-        console.log('title', playerAny.embed.getVideoData().title)
-      }
       this.player.play()
     })
+  }
+
+  playNextVideoInPlaylist () {
+    if (this.playlist.length === 0) {
+      return
+    }
+    const index = this.playlist.indexOf(this.videoId)
+    let nextIndex = index + 1
+    if (nextIndex === this.playlist.length) {
+      nextIndex = 0
+    }
+
+    this.videoId = this.playlist[nextIndex]
   }
 }
 </script>

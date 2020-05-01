@@ -25,19 +25,19 @@
 
     <button @click="stressTest">Start stress test</button>
 
-    <div v-if="playerVideoId">
-      <player :video-id="playerVideoId"></player>
+    <div v-if="playerVideoId" style="width: 640px;">
+      <player :video-id="playerVideoId" :playlist="playlist"></player>
     </div>
 
     <div id="validator-player-container" style="display: none;"></div>
 
     <div style="height: 200px; overflow: scroll">
       <h2>Latest posted urls</h2>
-      <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser"></posted-urls-list>
+      <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser" list-id="latest"></posted-urls-list>
     </div>
     <div style="height: 200px; overflow: scroll">
       <h2>Top posted urls</h2>
-      <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser"></posted-urls-list>
+      <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser" list-id="top"></posted-urls-list>
     </div>
     <div>
       <users-list :users-with-transactions="usersWithTransactions"></users-list>
@@ -121,6 +121,8 @@ export default class App extends Vue {
   private broadcastInterval = 30000
   private usedStorageSpace = 0
   private playerVideoId: string | null = null
+  private playlist: string[] = []
+  private playingListId: string = ''
 
   $refs!: {
     messages: HTMLElement
@@ -257,8 +259,10 @@ export default class App extends Vue {
       this.loadModels()
     })
 
-    EventHub.$on('play', (postedUrl: PostedUrl) => {
+    EventHub.$on('play', (postedUrl: PostedUrl, listId: string) => {
       this.playerVideoId = postedUrl.urlModel.videoId
+      this.playingListId = listId
+      this.updatePlaylist()
     })
   }
 
@@ -329,12 +333,21 @@ export default class App extends Vue {
     if (this.youTubeRadio) {
       this.postedUrls = this.youTubeRadio.getPostedUrls(true)
       this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
+      this.updatePlaylist()
     }
     if (this.userService) {
       this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
     }
     if (this.ignoreAndBlockControlService) {
       this.preferencesIgnoreAndBlock = this.ignoreAndBlockControlService.getPreferences()
+    }
+  }
+
+  updatePlaylist () {
+    if (this.playingListId === 'top') {
+      this.playlist = this.postedUrlsTop.map((url: PostedUrl) => url.urlModel.videoId)
+    } else {
+      this.playlist = this.postedUrls.map((url: PostedUrl) => url.urlModel.videoId)
     }
   }
 
