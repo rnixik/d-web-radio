@@ -14,6 +14,9 @@ Vue.use(VuePlyr.default, {
   emit: ['ended']
 })
 
+require('bootstrap/dist/js/bootstrap.bundle.js')
+require('bootstrap/dist/css/bootstrap.css')
+
 new Vue({
   render: h => h(App)
 }).$mount('#app')

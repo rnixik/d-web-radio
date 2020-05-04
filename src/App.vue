@@ -2,7 +2,7 @@
   <div id="app">
     <div>
       Namespace: <input v-model="namespace">
-      <button @click="enterNamespace()">Begin</button>
+      <button @click="enterNamespace()" class="btn btn-primary">Begin</button>
     </div>
 
     <div v-if="connectionsPool">
