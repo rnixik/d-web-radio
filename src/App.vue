@@ -67,26 +67,16 @@ import ManualSignaling from './components/ManualSignaling.vue'
 import SocketsSignaling from './components/SocketsSignaling.vue'
 import PostedUrlsList from './components/PostedUrlsList.vue'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
-import { StorageService } from 'd-web-core/lib/services/StorageService'
-import { CryptoService } from 'd-web-core/lib/services/CryptoService'
-import { UserService } from 'd-web-core/lib/services/UserService'
-import { TransactionService } from 'd-web-core/lib/services/TransactionService'
-import { TransactionSerializer } from 'd-web-core/lib/services/TransactionSerializer'
-import { TransportService } from 'd-web-core/lib/services/TransportService'
-import { ValidatorService } from 'd-web-core/lib/services/ValidatorService'
 import { AuthenticatedUser } from 'd-web-core/lib/models/AuthenticatedUser'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
-import { TransactionTypeResolver } from 'd-web-core/lib/services/TransactionTypeResolver'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
 import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 import { UserWithTransactions } from 'd-web-core/lib/models/UserWithTransactions'
 import { Transaction } from 'd-web-core/lib/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
-import { IgnoreAndBlockFilterService } from 'd-web-core/lib/services/IgnoreAndBlockFilterService'
 import { EventHub } from '@/components/EventHub'
 import { User } from 'd-web-core/lib/models/User'
-import { IgnoreAndBlockControlService } from 'd-web-core/lib/services/IgnoreAndBlockControlService'
 import IgnoreAndBlockPreferences from '@/components/IgnoreAndBlockPreferences.vue'
 import { PreferencesIgnoreAndBlock } from 'd-web-core/lib/models/PreferencesIgnoreAndBlock'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
@@ -95,6 +85,7 @@ import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTu
 import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
 import MyTransactions from '@/components/MyTransactions.vue'
+import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentralizedApplication'
 
 @Component({
   components: {
@@ -118,9 +109,6 @@ export default class App extends Vue {
   private password = ''
   private authErrorMessage = ''
   private postUrlErrorMessage = ''
-  private userService?: UserService
-  private transactionService?: TransactionService
-  private ignoreAndBlockControlService?: IgnoreAndBlockControlService
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private postedUrls: PostedUrl[] = []
@@ -133,6 +121,7 @@ export default class App extends Vue {
   private playerVideoId: string | null = null
   private playlist: string[] = []
   private playingListId: string = ''
+  private dApp?: RegularDecentralizedApplication
 
   created () {
     this.$root.$on('manualConnected', () => {
@@ -140,69 +129,69 @@ export default class App extends Vue {
     })
 
     EventHub.$on('userControl', (action: string, user: User) => {
-      if (!this.ignoreAndBlockControlService) {
+      if (!this.dApp) {
         return
       }
 
       switch (action) {
         case 'block':
-          this.ignoreAndBlockControlService.addUserToBlockBlackList(user)
+          this.dApp.ignoreAndBlockControlService.addUserToBlockBlackList(user)
           break
         case 'ignore':
-          this.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
+          this.dApp.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
           break
         case 'addToBlockWhiteList':
-          this.ignoreAndBlockControlService.addUserToBlockWhiteList(user)
+          this.dApp.ignoreAndBlockControlService.addUserToBlockWhiteList(user)
           break
         case 'addToIgnoreWhiteList':
-          this.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
+          this.dApp.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
           break
         case 'removeFromBlockBlackList':
-          this.ignoreAndBlockControlService.removeUserFromBlockBlackList(user)
+          this.dApp.ignoreAndBlockControlService.removeUserFromBlockBlackList(user)
           break
         case 'removeFromIgnoreBlackList':
-          this.ignoreAndBlockControlService.removeUserFromIgnoreBlackList(user)
+          this.dApp.ignoreAndBlockControlService.removeUserFromIgnoreBlackList(user)
           break
         case 'removeFromBlockWhiteList':
-          this.ignoreAndBlockControlService.removeUserFromBlockWhiteList(user)
+          this.dApp.ignoreAndBlockControlService.removeUserFromBlockWhiteList(user)
           break
         case 'removeFromIgnoreWhiteList':
-          this.ignoreAndBlockControlService.removeUserFromIgnoreWhiteList(user)
+          this.dApp.ignoreAndBlockControlService.removeUserFromIgnoreWhiteList(user)
           break
         default:
           console.error('Unknown userControl action', action)
       }
 
-      if (this.transactionService) {
-        this.transactionService.filterAndStoreStoredTransactions()
+      if (this.dApp) {
+        this.dApp.transactionService.filterAndStoreStoredTransactions()
         this.loadModels()
       }
     })
 
     EventHub.$on('setIgnoreAndBlockListEnabled', (list: string, value: boolean) => {
-      if (!this.ignoreAndBlockControlService) {
+      if (!this.dApp) {
         return
       }
 
       switch (list) {
         case 'blockBlack':
-          this.ignoreAndBlockControlService.setBlockBlackListEnabled(value)
+          this.dApp.ignoreAndBlockControlService.setBlockBlackListEnabled(value)
           break
         case 'ignoreBlack':
-          this.ignoreAndBlockControlService.setIgnoreBlackListEnabled(value)
+          this.dApp.ignoreAndBlockControlService.setIgnoreBlackListEnabled(value)
           break
         case 'blockWhite':
-          this.ignoreAndBlockControlService.setBlockWhiteListEnabled(value)
+          this.dApp.ignoreAndBlockControlService.setBlockWhiteListEnabled(value)
           break
         case 'ignoreWhite':
-          this.ignoreAndBlockControlService.setIgnoreWhiteListEnabled(value)
+          this.dApp.ignoreAndBlockControlService.setIgnoreWhiteListEnabled(value)
           break
         default:
           console.error('Unknown setIgnoreAndBlockListEnabled list', list)
       }
 
-      if (this.transactionService) {
-        this.transactionService.filterAndStoreStoredTransactions()
+      if (this.dApp) {
+        this.dApp.transactionService.filterAndStoreStoredTransactions()
         this.loadModels()
       }
     })
@@ -236,45 +225,21 @@ export default class App extends Vue {
     const youTubeUrlValidator = new YouTubeUrlValidator()
     youTubeUrlValidator.maxVideoDuration = 300
 
-    const transactionTypeResolver = new TransactionTypeResolver()
-    transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
-    transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
-    transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
-    transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
+    this.dApp = new RegularDecentralizedApplication(this.namespace, this.connectionsPool)
+    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
+    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
+    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
+    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
 
-    const cryptoService = new CryptoService(transactionTypeResolver)
-    const transactionSerializer = new TransactionSerializer(transactionTypeResolver)
-    const storageService = new StorageService(this.namespace, transactionSerializer)
-    const transportService = new TransportService(this.connectionsPool, transactionSerializer, this.namespace)
-    const validatorService = new ValidatorService(cryptoService, transactionTypeResolver)
-    const ignoreAndBlockFilterService = new IgnoreAndBlockFilterService(storageService)
-    this.transactionService = new TransactionService(
-      cryptoService,
-      transportService,
-      storageService,
-      validatorService,
-      ignoreAndBlockFilterService,
-      5
-    )
-
-    this.userService = new UserService(cryptoService, this.transactionService)
-    this.ignoreAndBlockControlService = new IgnoreAndBlockControlService(storageService)
-    this.youTubeRadio = new YouTubeRadio(this.transactionService, this.userService)
+    this.youTubeRadio = new YouTubeRadio(this.dApp.transactionService, this.dApp.userService)
     this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
-    this.transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
-    const transactionService = this.transactionService
-
-    let broadcastIntervalId: number
+    const dApp = this.dApp
     this.connectionsPool.addOnOpenCallback(() => {
-      if (!broadcastIntervalId) {
-        broadcastIntervalId = window.setInterval(() => {
-          transactionService.broadcastTransactions()
-        }, this.broadcastInterval)
-      }
+      dApp.startNetworking(this.handleNewTransactions, this.broadcastInterval)
     })
 
-    this.usedStorageSpace = storageService.getUsedStorageSpace()
+    this.usedStorageSpace = this.dApp.storageService.getUsedStorageSpace()
 
     this.loadModels()
   }
@@ -295,33 +260,33 @@ export default class App extends Vue {
   }
 
   async register () {
-    if (!this.userService) {
+    if (!this.dApp) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = await this.userService.register(this.login, this.password)
+      this.authenticatedUser = await this.dApp.userService.register(this.login, this.password)
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
   }
 
   signin () {
-    if (!this.userService) {
+    if (!this.dApp) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = this.userService.login(this.login, this.password)
+      this.authenticatedUser = this.dApp.userService.login(this.login, this.password)
       this.loadModels()
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
   }
 
-  handleNewPostedUrls (postedUrls: PostedUrl[]) {
+  handleNewPostedUrls () {
     if (!this.youTubeRadio) {
       return
     }
@@ -330,8 +295,8 @@ export default class App extends Vue {
   }
 
   handleNewTransactions (newTransactions: Transaction[]) {
-    if (this.userService) {
-      this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
+    if (this.dApp) {
+      this.usersWithTransactions = this.dApp.userService.getUsersWithTransactions(true)
     }
   }
 
@@ -341,8 +306,8 @@ export default class App extends Vue {
       this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
       this.updatePlaylist()
     }
-    if (this.userService) {
-      this.usersWithTransactions = this.userService.getUsersWithTransactions(true)
+    if (this.dApp) {
+      this.usersWithTransactions = this.dApp.userService.getUsersWithTransactions(true)
       if (this.authenticatedUser) {
         for (const uwt of this.usersWithTransactions) {
           if (uwt.user.publicKey === this.authenticatedUser.publicKey) {
@@ -352,8 +317,8 @@ export default class App extends Vue {
         }
       }
     }
-    if (this.ignoreAndBlockControlService) {
-      this.preferencesIgnoreAndBlock = this.ignoreAndBlockControlService.getPreferences()
+    if (this.dApp) {
+      this.preferencesIgnoreAndBlock = this.dApp.ignoreAndBlockControlService.getPreferences()
     }
   }
 
@@ -362,15 +327,6 @@ export default class App extends Vue {
       this.playlist = this.postedUrlsTop.map((url: PostedUrl) => url.urlModel.videoId)
     } else {
       this.playlist = this.postedUrls.map((url: PostedUrl) => url.urlModel.videoId)
-    }
-  }
-
-  stressTest () {
-    if (this.youTubeRadio && this.authenticatedUser) {
-      for (let i = 1000; i < 1999; i++) {
-        const url = 'https://www.youtube.com/watch?v=1234567' + i
-        this.youTubeRadio.postUrl(this.authenticatedUser, url)
-      }
     }
   }
 }

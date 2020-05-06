@@ -2666,8 +2666,8 @@ cyclist@^1.0.1:
   integrity sha1-WW6WmP0MgOEgOMK4LW6xs1tiJNk=
 
 "d-web-core@git+https://github.com/rnixik/d-web-core.git":
-  version "2.0.0"
-  resolved "git+https://github.com/rnixik/d-web-core.git#0c81c300a0a849a15ca6d3e78d91b0c93cd3a855"
+  version "5.0.0"
+  resolved "git+https://github.com/rnixik/d-web-core.git#78be8a5c1a0471ee222908c1241d0fdcc7375e81"
   dependencies:
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
