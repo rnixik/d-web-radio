@@ -196,12 +196,12 @@ export default class App extends Vue {
       }
     })
 
-    EventHub.$on('vote', (urlModel: PostedUrl, isPositive: boolean) => {
+    EventHub.$on('vote', async (urlModel: PostedUrl, isPositive: boolean) => {
       if (!this.youTubeRadio || !this.authenticatedUser) {
         return
       }
 
-      this.youTubeRadio.vote(this.authenticatedUser, urlModel, isPositive)
+      await this.youTubeRadio.vote(this.authenticatedUser, urlModel, isPositive)
 
       this.loadModels()
     })
