@@ -31,6 +31,10 @@
       <player :video-id="playerVideoId" :playlist="playlist"></player>
     </div>
 
+    <label>
+      <input type="checkbox" v-model="doNotAddToPlaylistDownVoted"> Do not add down-voted urls to playlist
+    </label>
+
     <div id="validator-player-container" style="display: none;"></div>
 
     <div style="height: 200px; overflow: scroll">
@@ -61,7 +65,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import LocalSignaling from './components/LocalSignaling.vue'
 import ManualSignaling from './components/ManualSignaling.vue'
 import SocketsSignaling from './components/SocketsSignaling.vue'
@@ -121,6 +125,7 @@ export default class App extends Vue {
   private playerVideoId: string | null = null
   private playlist: string[] = []
   private playingListId: string = ''
+  private doNotAddToPlaylistDownVoted = true
   private dApp?: RegularDecentralizedApplication
 
   created () {
@@ -322,12 +327,21 @@ export default class App extends Vue {
     }
   }
 
+  @Watch('doNotAddToPlaylistDownVoted')
   updatePlaylist () {
+    let list = this.postedUrls
     if (this.playingListId === 'top') {
-      this.playlist = this.postedUrlsTop.map((url: PostedUrl) => url.urlModel.videoId)
-    } else {
-      this.playlist = this.postedUrls.map((url: PostedUrl) => url.urlModel.videoId)
+      list = this.postedUrlsTop
     }
+
+    if (this.authenticatedUser && this.doNotAddToPlaylistDownVoted) {
+      const user = this.authenticatedUser.getPublicUser()
+      list = list.filter(
+        (url: PostedUrl) => !url.hasUserVotedNegatively(user)
+      )
+    }
+
+    this.playlist = list.map((url: PostedUrl) => url.urlModel.videoId)
   }
 }
 </script>
