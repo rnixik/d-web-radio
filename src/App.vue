@@ -1,9 +1,6 @@
 <template>
-  <div id="app">
-    <div>
-      Namespace: <input v-model="namespace">
-      <button @click="enterNamespace()" class="btn btn-primary">Begin</button>
-    </div>
+  <div>
+    <greeting v-if="!this.namespace"></greeting>
 
     <div v-if="connectionsPool">
       <LocalSignaling :connectionsPool="connectionsPool"/>
@@ -90,9 +87,11 @@ import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
 import MyTransactions from '@/components/MyTransactions.vue'
 import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentralizedApplication'
+import Greeting from '@/components/Greeting.vue'
 
 @Component({
   components: {
+    Greeting,
     MyTransactions,
     Player,
     IgnoreAndBlockPreferences,
@@ -104,7 +103,7 @@ import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentral
   }
 })
 export default class App extends Vue {
-  private namespace = 'demo'
+  private namespace = ''
   private connectionsPool: WebRtcConnectionsPool | null = null
   private activeConnectionsNum: number = 0
   private showManualConnection: boolean = false
@@ -131,6 +130,11 @@ export default class App extends Vue {
   created () {
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
+    })
+
+    EventHub.$on('begin', (namespace: string) => {
+      this.namespace = namespace
+      this.beginWithNamespace()
     })
 
     EventHub.$on('userControl', (action: string, user: User) => {
@@ -218,7 +222,7 @@ export default class App extends Vue {
     })
   }
 
-  enterNamespace () {
+  beginWithNamespace () {
     this.connectionsPool = new WebRtcConnectionsPool(true)
     this.connectionsPool.addOnOpenCallback(() => {
       this.activeConnectionsNum += 1
