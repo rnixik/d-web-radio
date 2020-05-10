@@ -281,42 +281,42 @@ export default class App extends Vue {
     }
   }
 
-  signin () {
+  async signin () {
     if (!this.dApp) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = this.dApp.userService.login(this.login, this.password)
-      this.loadModels()
+      this.authenticatedUser = await this.dApp.userService.login(this.login, this.password)
+      await this.loadModels()
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
   }
 
-  handleNewPostedUrls () {
+  async handleNewPostedUrls () {
     if (!this.youTubeRadio) {
       return
     }
-    this.postedUrls = this.youTubeRadio.getPostedUrls(true)
-    this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
+    this.postedUrls = await this.youTubeRadio.getPostedUrls(true)
+    this.postedUrlsTop = await this.youTubeRadio.getPostedUrls(false)
   }
 
-  handleNewTransactions (newTransactions: Transaction[]) {
+  async handleNewTransactions (newTransactions: Transaction[]) {
     if (this.dApp) {
-      this.usersWithTransactions = this.dApp.userService.getUsersWithTransactions(true)
+      this.usersWithTransactions = await this.dApp.userService.getUsersWithTransactions(true)
     }
   }
 
-  loadModels () {
+  async loadModels () {
     if (this.youTubeRadio) {
-      this.postedUrls = this.youTubeRadio.getPostedUrls(true)
-      this.postedUrlsTop = this.youTubeRadio.getPostedUrls(false)
+      this.postedUrls = await this.youTubeRadio.getPostedUrls(true)
+      this.postedUrlsTop = await this.youTubeRadio.getPostedUrls(false)
       this.updatePlaylist()
     }
     if (this.dApp) {
-      this.usersWithTransactions = this.dApp.userService.getUsersWithTransactions(true)
+      this.usersWithTransactions = await this.dApp.userService.getUsersWithTransactions(true)
       if (this.authenticatedUser) {
         for (const uwt of this.usersWithTransactions) {
           if (uwt.user.publicKey === this.authenticatedUser.publicKey) {
@@ -327,7 +327,7 @@ export default class App extends Vue {
       }
     }
     if (this.dApp) {
-      this.preferencesIgnoreAndBlock = this.dApp.ignoreAndBlockControlService.getPreferences()
+      this.preferencesIgnoreAndBlock = await this.dApp.ignoreAndBlockControlService.getPreferences()
     }
   }
 
@@ -349,13 +349,3 @@ export default class App extends Vue {
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>

@@ -18,7 +18,7 @@ export class YouTubeRadio {
     this.transactionService = transactionService
     this.userService = userService
 
-    this.transactionService.addOnNewTransactionsCallback((newTransactions: Transaction[], storedTransactions) => {
+    this.transactionService.addOnNewTransactionsCallback((newTransactions: Transaction[]) => {
       this.handleNewTransactions(newTransactions)
     })
   }
@@ -29,11 +29,11 @@ export class YouTubeRadio {
     const videoId = videoIdExtractor.extractVideoId(url)
     const youTubeUrlModel = new YouTubeUrlModel(videoId, publicUser)
     const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
-    this.transactionService.signAndSend(authenticatedUser, transaction)
+    await this.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
-  public getPostedUrls (sortByDate = false): PostedUrl[] {
-    const storedTransactions = this.transactionService.getTransactions(true)
+  public async getPostedUrls (sortByDate = false): Promise<PostedUrl[]> {
+    const storedTransactions = await this.transactionService.getTransactions(true)
     const postedUrls = this.extractUrlsFromTransactions(storedTransactions)
 
     return postedUrls.sort((a: PostedUrl, b: PostedUrl) => {
@@ -75,7 +75,7 @@ export class YouTubeRadio {
     const publicUser = authenticatedUser.getPublicUser()
     const youTubeUrlVoteModel = new YouTubeUrlVoteModel(postedUrl.urlModel.videoId, publicUser, isPositive)
     const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
-    this.transactionService.signAndSend(authenticatedUser, transaction)
+    await this.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
   public extractUrlsFromTransactions (transactions: Transaction[]): PostedUrl[] {
