@@ -128,6 +128,12 @@ export default class App extends Vue {
   private dApp?: RegularDecentralizedApplication
 
   created () {
+    const hashParams = this.getHashParams()
+    if (hashParams.ns) {
+      this.namespace = hashParams.ns
+      this.beginWithNamespace()
+    }
+
     this.$root.$on('manualConnected', () => {
       this.showManualConnection = false
     })
@@ -346,6 +352,14 @@ export default class App extends Vue {
     }
 
     this.playlist = list.map((url: PostedUrl) => url.urlModel.videoId)
+  }
+
+  private getHashParams (): any {
+    // #ns=demo&other=value => {ns: "demo", other: "value"}
+    return location.hash.substr(1)
+      .split('&')
+      .map(v => v.split('='))
+      .reduce((pre, [key, value]) => ({ ...pre, [key]: value }), {})
   }
 }
 </script>
