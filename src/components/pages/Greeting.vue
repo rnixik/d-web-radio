@@ -19,13 +19,12 @@
 
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import { EventHub } from '@/components/EventHub'
 @Component
 export default class PostedUrlsList extends Vue {
   private namespace = 'demo'
 
   begin () {
-    EventHub.$emit('begin', this.namespace)
+    this.$router.push({ name: 'connections', params: { namespace: this.namespace } })
   }
 }
 </script>

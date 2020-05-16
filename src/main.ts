@@ -1,6 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 import VModal from 'vue-js-modal'
+import VueRouter from 'vue-router'
+import Greeting from '@/components/pages/Greeting.vue'
+import Namespace from '@/components/pages/Namespace.vue'
+import Connections from '@/components/pages/Connections.vue'
+
+Vue.use(VueRouter)
 
 Vue.config.productionTip = false
 Vue.use(VModal, { dialog: true })
@@ -17,6 +23,32 @@ Vue.use(VuePlyr.default, {
 require('bootstrap/dist/js/bootstrap.bundle.js')
 require('bootstrap/dist/css/bootstrap.css')
 
+const routes = [
+  {
+    path: '/',
+    component: Greeting,
+    name: 'greeting'
+  },
+  {
+    path: '/n/:namespace',
+    component: Namespace,
+    name: 'namespace',
+    props: true,
+    children: [
+      {
+        path: 'connections',
+        component: Connections,
+        name: 'connections'
+      }
+    ]
+  }
+]
+
+const router = new VueRouter({
+  routes
+})
+
 new Vue({
-  render: h => h(App)
+  render: h => h(App),
+  router
 }).$mount('#app')
