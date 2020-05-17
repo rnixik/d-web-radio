@@ -64,7 +64,7 @@
               </li>
               <li>
                 <router-link to="top">
-                  <span>Top-100</span>
+                  <span>Top 100</span>
                 </router-link>
               </li>
             </ul>
@@ -81,30 +81,22 @@
               <player :video-id="playerVideoId" :playlist="playlist"></player>
             </div>
           </transition>
+          <div v-if="playerVideoId">
+            <label>
+              <input type="checkbox" v-model="doNotAddToPlaylistDownVoted"> Do not add down-voted urls to playlist
+            </label>
+          </div>
 
           <router-view
             :connectionsPool="connectionsPool"
             :postedUrls="postedUrls"
             :postedUrlsTop="postedUrlsTop"
             :authenticatedUser="authenticatedUser"
+            :youTubeRadio="youTubeRadio"
+            :activeConnectionsNum="activeConnectionsNum"
           ></router-view>
 
-          Add video (link to YouTube): <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
-
-          {{ postUrlErrorMessage }}
-
-          <div>
-            <label>
-              <input type="checkbox" v-model="doNotAddToPlaylistDownVoted">Do not add down-voted urls to playlist
-            </label>
-          </div>
-
           <div id="validator-player-container" style="display: none;"></div>
-
-          <div style="height: 200px; overflow: scroll">
-            <h2>Top posted urls</h2>
-            <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser" list-id="top"></posted-urls-list>
-          </div>
 
           <div v-if="myTransactions && authenticatedUser">
             <my-transactions :transactions="myTransactions"></my-transactions>
@@ -270,11 +262,9 @@ export default class Namespace extends Vue {
   private connectionsPool: WebRtcConnectionsPool | null = null
   private activeConnectionsNum: number = 0
   private showManualConnection: boolean = false
-  private url = ''
   private login = ''
   private password = ''
   private authErrorMessage = ''
-  private postUrlErrorMessage = ''
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
   private postedUrls: PostedUrl[] = []
@@ -427,21 +417,6 @@ export default class Namespace extends Vue {
     }
     const jdenticon = require('jdenticon')
     return jdenticon.toSvg(this.authenticatedUser.publicKey, 56)
-  }
-
-  async addUrl () {
-    if (!this.connectionsPool || !this.url || !this.youTubeRadio || !this.authenticatedUser) {
-      return
-    }
-    this.postUrlErrorMessage = ''
-
-    try {
-      await this.youTubeRadio.postUrl(this.authenticatedUser, this.url)
-      this.url = ''
-    } catch (e) {
-      console.error(e)
-      this.postUrlErrorMessage = e.toString()
-    }
   }
 
   async register () {

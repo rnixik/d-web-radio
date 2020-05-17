@@ -2,7 +2,7 @@
   <div>
     <h2>Top-100</h2>
     <posted-urls-list
-      :posted-urls="postedUrlsTop"
+      :posted-urls="postedUrlsTop.slice(0, 100)"
       :user="authenticatedUser"
       list-id="latest"
     ></posted-urls-list>
