@@ -5,6 +5,8 @@ import VueRouter from 'vue-router'
 import Greeting from '@/components/pages/Greeting.vue'
 import Namespace from '@/components/pages/Namespace.vue'
 import Connections from '@/components/pages/Connections.vue'
+import Radio from '@/components/pages/Radio.vue'
+import Top from '@/components/pages/Top.vue'
 
 Vue.use(VueRouter)
 
@@ -39,6 +41,16 @@ const routes = [
         path: 'connections',
         component: Connections,
         name: 'connections'
+      },
+      {
+        path: 'radio',
+        component: Radio,
+        name: 'radio'
+      },
+      {
+        path: 'top',
+        component: Top,
+        name: 'top'
       }
     ]
   }

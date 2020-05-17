@@ -476,3 +476,7 @@ body {
 .chiller-theme .sidebar-footer>a:last-child {
     border-right: none;
 }
+
+.chiller-theme .sidebar-wrapper .sidebar-menu ul li a.router-link-active {
+    color: #fff;
+}

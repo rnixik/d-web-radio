@@ -1,6 +1,6 @@
 <template>
   <div>
-        <div class="page-wrapper chiller-theme toggled">
+    <div class="page-wrapper chiller-theme toggled">
       <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
         <i class="fas fa-bars"></i>
       </a>
@@ -40,6 +40,16 @@
                   </span>
                 </router-link>
               </li>
+              <li>
+                <router-link to="radio">
+                  <span>Radio</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="top">
+                  <span>Top-100</span>
+                </router-link>
+              </li>
             </ul>
           </div>
           <!-- sidebar-menu  -->
@@ -49,7 +59,18 @@
       <!-- sidebar-wrapper  -->
       <main class="page-content">
         <div class="container-fluid">
-          <router-view :connectionsPool="connectionsPool"></router-view>
+          <transition name="slide-up">
+            <div v-if="playerVideoId" style="width: 640px;">
+              <player :video-id="playerVideoId" :playlist="playlist"></player>
+            </div>
+          </transition>
+
+          <router-view
+            :connectionsPool="connectionsPool"
+            :postedUrls="postedUrls"
+            :postedUrlsTop="postedUrlsTop"
+            :authenticatedUser="authenticatedUser"
+          ></router-view>
 
           Add video (link to YouTube): <input v-model="url" :disabled="activeConnectionsNum < 1"><button :disabled="activeConnectionsNum < 1" @click="addUrl">Send</button>
 
@@ -65,20 +86,12 @@
           <button @click="signin">Login</button>
           {{ authErrorMessage }}
 
-          <div v-if="playerVideoId" style="width: 640px;">
-            <player :video-id="playerVideoId" :playlist="playlist"></player>
-          </div>
-
           <label>
             <input type="checkbox" v-model="doNotAddToPlaylistDownVoted"> Do not add down-voted urls to playlist
           </label>
 
           <div id="validator-player-container" style="display: none;"></div>
 
-          <div style="height: 200px; overflow: scroll">
-            <h2>Latest posted urls</h2>
-            <posted-urls-list :posted-urls="postedUrls" :user="authenticatedUser" list-id="latest"></posted-urls-list>
-          </div>
           <div style="height: 200px; overflow: scroll">
             <h2>Top posted urls</h2>
             <posted-urls-list :posted-urls="postedUrlsTop" :user="authenticatedUser" list-id="top"></posted-urls-list>
@@ -106,6 +119,16 @@
     <!-- page-wrapper -->
   </div>
 </template>
+
+<style scoped>
+  .slide-up-enter-active, .slide-up-leave-active {
+    transition: all 1s;
+  }
+  .slide-up-enter, .slide-up-leave-to {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+</style>
 
 <script lang="ts">
 import { Component, Vue, Watch } from 'vue-property-decorator'
