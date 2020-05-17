@@ -27,6 +27,23 @@
             </div>
           </div>
           <!-- sidebar-header  -->
+          <div class="sidebar-header" v-if="!authenticatedUser && activeConnectionsNum > 0">
+            <button
+              role="button"
+              class="btn btn-primary mr-2 mb-2"
+              data-toggle="modal"
+              data-target="#loginModal"
+            >Log-in</button>
+            <button
+              role="button"
+              class="btn btn-primary mb-2"
+              data-toggle="modal"
+              data-target="#registerModal"
+            >Register</button>
+          </div>
+          <div class="sidebar-header" v-if="!authenticatedUser && activeConnectionsNum < 1">
+            <div class="text-muted">Connect to network to be able to authenticate.</div>
+          </div>
 
           <div class="sidebar-menu">
             <ul>
@@ -76,19 +93,11 @@
 
           {{ postUrlErrorMessage }}
 
-          <br>
-          Login: <input v-model="login"><br>
-          Password: <input v-model="password"><br>
-          <div v-if="authenticatedUser">
-            User: {{ authenticatedUser.login }} - {{ authenticatedUser.publicKey}} <br>
+          <div>
+            <label>
+              <input type="checkbox" v-model="doNotAddToPlaylistDownVoted">Do not add down-voted urls to playlist
+            </label>
           </div>
-          <button @click="register">Register</button>
-          <button @click="signin">Login</button>
-          {{ authErrorMessage }}
-
-          <label>
-            <input type="checkbox" v-model="doNotAddToPlaylistDownVoted"> Do not add down-voted urls to playlist
-          </label>
 
           <div id="validator-player-container" style="display: none;"></div>
 
@@ -117,6 +126,91 @@
       <!-- page-content" -->
     </div>
     <!-- page-wrapper -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="loginModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="loginModalLabel">Log-in</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="loginInput">Login</label>
+              <input
+                type="text"
+                class="form-control"
+                id="loginInput"
+                v-model="login"
+                aria-describedby="loginHelp">
+              <small id="loginHelp" class="form-text text-muted">Your login which you have already registered.</small>
+            </div>
+            <div class="form-group">
+              <label for="loginPasswordInput">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="loginPasswordInput"
+                v-model="password"
+              >
+            </div>
+            <div class="alert alert-danger" v-if="authErrorMessage">
+              {{ authErrorMessage }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" ref="loginCloseBtn" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" @click="signin">Log-in</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ./Modal -->
+    <!-- Modal -->
+    <div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="registerModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="registerModalLabel">Register</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="registerLoginInput">Login</label>
+              <input
+                type="text"
+                class="form-control"
+                id="registerLoginInput"
+                v-model="login"
+                aria-describedby="registerLoginHelp">
+              <small id="registerLoginHelp" class="form-text text-muted">Letters and numbers to identify you in the network.</small>
+            </div>
+            <div class="form-group">
+              <label for="registerPasswordInput">Password</label>
+              <input
+                type="password"
+                class="form-control"
+                id="registerPasswordInput"
+                v-model="password"
+              >
+            </div>
+            <div class="alert alert-danger" v-if="authErrorMessage">
+              {{ authErrorMessage }}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" ref="registerCloseBtn" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" @click="register">Register</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ./Modal -->
   </div>
 </template>
 
@@ -195,6 +289,11 @@ export default class Namespace extends Vue {
   private playingListId: string = ''
   private doNotAddToPlaylistDownVoted = true
   private dApp?: RegularDecentralizedApplication
+
+  $refs!: {
+    loginCloseBtn: HTMLElement
+    registerCloseBtn: HTMLElement
+  }
 
   created () {
     this.$root.$on('manualConnected', () => {
@@ -353,6 +452,7 @@ export default class Namespace extends Vue {
 
     try {
       this.authenticatedUser = await this.dApp.userService.register(this.login, this.password)
+      this.$refs.registerCloseBtn.click()
     } catch (e) {
       this.authErrorMessage = e.toString()
     }
@@ -366,6 +466,7 @@ export default class Namespace extends Vue {
 
     try {
       this.authenticatedUser = await this.dApp.userService.login(this.login, this.password)
+      this.$refs.loginCloseBtn.click()
       await this.loadModels()
     } catch (e) {
       this.authErrorMessage = e.toString()
