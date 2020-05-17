@@ -1,15 +1,19 @@
 <template>
   <div>
-    <h1>My transactions</h1>
+    <h1>My transactions: {{ myTransactions.length }}</h1>
     <div v-if="myTransactions">
-      My transactions ({{ myTransactions.length }}):
-      <ol v-if="myTransactions && myTransactions.length">
-        <li v-for="transaction in myTransactions.slice(-10).reverse()" :key="transaction.hash">
-          {{ transaction.type }} -
-          <span title="Signatures">{{ transaction.signatures.length}}</span> -
-          {{ transaction.storedAt.toLocaleString() }}
-        </li>
-      </ol>
+      <table class="table table-striped" v-if="myTransactions && myTransactions.length">
+        <tr>
+          <td>Type</td>
+          <td>Signatures</td>
+          <td>Stored at</td>
+        </tr>
+        <tr v-for="transaction in myTransactions.slice(-100).reverse()" :key="transaction.hash">
+          <td>{{ transaction.type }}</td>
+          <td>{{ transaction.signatures.length}}</td>
+          <td>{{ transaction.storedAt.toLocaleString() }}</td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
