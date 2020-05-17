@@ -1,10 +1,10 @@
 <template>
   <div>
-    <h2>Top-100</h2>
+    <h1>Top 100</h1>
     <posted-urls-list
       :posted-urls="postedUrlsTop.slice(0, 100)"
       :user="authenticatedUser"
-      list-id="latest"
+      list-id="top"
     ></posted-urls-list>
   </div>
 </template>
@@ -19,7 +19,7 @@ import { AuthenticatedUser } from 'd-web-core/lib/models/AuthenticatedUser'
     PostedUrlsList
   }
 })
-export default class Radio extends Vue {
+export default class Top extends Vue {
   @Prop({ default: [] }) postedUrlsTop!: PostedUrl[]
   @Prop({ default: null }) authenticatedUser!: AuthenticatedUser
 }

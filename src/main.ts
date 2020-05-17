@@ -7,6 +7,7 @@ import Namespace from '@/components/pages/Namespace.vue'
 import Connections from '@/components/pages/Connections.vue'
 import Radio from '@/components/pages/Radio.vue'
 import Top from '@/components/pages/Top.vue'
+import MyTransactions from '@/components/pages/MyTransactions.vue'
 
 Vue.use(VueRouter)
 
@@ -51,6 +52,11 @@ const routes = [
         path: 'top',
         component: Top,
         name: 'top'
+      },
+      {
+        path: 'my-transactions',
+        component: MyTransactions,
+        name: 'myTransactions'
       }
     ]
   }

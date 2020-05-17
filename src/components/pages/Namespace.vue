@@ -67,6 +67,11 @@
                   <span>Top 100</span>
                 </router-link>
               </li>
+              <li>
+                <router-link to="my-transactions">
+                  <span>My transactions</span>
+                </router-link>
+              </li>
             </ul>
           </div>
           <!-- sidebar-menu  -->
@@ -94,13 +99,10 @@
             :authenticatedUser="authenticatedUser"
             :youTubeRadio="youTubeRadio"
             :activeConnectionsNum="activeConnectionsNum"
+            :myTransactions="myTransactions"
           ></router-view>
 
           <div id="validator-player-container" style="display: none;"></div>
-
-          <div v-if="myTransactions && authenticatedUser">
-            <my-transactions :transactions="myTransactions"></my-transactions>
-          </div>
 
           <div>
             <users-list :users-with-transactions="usersWithTransactions"></users-list>
@@ -240,14 +242,12 @@ import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouT
 import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
 import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
-import MyTransactions from '@/components/MyTransactions.vue'
 import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentralizedApplication'
 
 require('@/assets/sidebar.css')
 
 @Component({
   components: {
-    MyTransactions,
     Player,
     IgnoreAndBlockPreferences,
     UsersList,

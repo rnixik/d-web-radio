@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Radio</h2>
+    <h1>Radio</h1>
     <posted-urls-list
       :posted-urls="postedUrls"
       :user="authenticatedUser"

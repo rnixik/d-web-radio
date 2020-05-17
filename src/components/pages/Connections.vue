@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Connection page</h2>
+    <h1>Connection page</h1>
 
     <div v-if="connectionsPool">
       <LocalSignaling :connectionsPool="connectionsPool"/>
