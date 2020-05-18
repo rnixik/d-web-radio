@@ -42,7 +42,9 @@
             >Register</button>
           </div>
           <div class="sidebar-header" v-if="!authenticatedUser && activeConnectionsNum < 1">
-            <div class="text-muted">Connect to network to be able to authenticate.</div>
+            <div class="text-muted">
+              <router-link to="connections">Connect</router-link>
+              to the network to be able to authenticate.</div>
           </div>
 
           <div class="sidebar-menu">
@@ -70,6 +72,11 @@
               <li>
                 <router-link to="my-transactions">
                   <span>My transactions</span>
+                </router-link>
+              </li>
+              <li>
+                <router-link to="users-with-transactions">
+                  <span>Users with transactions</span>
                 </router-link>
               </li>
             </ul>
@@ -100,13 +107,10 @@
             :youTubeRadio="youTubeRadio"
             :activeConnectionsNum="activeConnectionsNum"
             :myTransactions="myTransactions"
+            :usersWithTransactions="usersWithTransactions"
           ></router-view>
 
           <div id="validator-player-container" style="display: none;"></div>
-
-          <div>
-            <users-list :users-with-transactions="usersWithTransactions"></users-list>
-          </div>
 
           <div v-if="preferencesIgnoreAndBlock">
             <ignore-and-block-preferences :preferences-ignore-and-block="preferencesIgnoreAndBlock"></ignore-and-block-preferences>

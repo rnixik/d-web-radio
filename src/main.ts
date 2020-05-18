@@ -8,6 +8,7 @@ import Connections from '@/components/pages/Connections.vue'
 import Radio from '@/components/pages/Radio.vue'
 import Top from '@/components/pages/Top.vue'
 import MyTransactions from '@/components/pages/MyTransactions.vue'
+import UsersWithTransactions from '@/components/pages/UsersWithTransactions.vue'
 
 Vue.use(VueRouter)
 
@@ -57,6 +58,11 @@ const routes = [
         path: 'my-transactions',
         component: MyTransactions,
         name: 'myTransactions'
+      },
+      {
+        path: 'users-with-transactions',
+        component: UsersWithTransactions,
+        name: 'usersWithTransactions'
       }
     ]
   }
