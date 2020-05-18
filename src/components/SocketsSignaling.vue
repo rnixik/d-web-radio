@@ -1,11 +1,20 @@
 <template>
   <div>
-    <div v-if="!signalingIsConnected">
-      <label>Address: <input v-model="address" :disabled="connectingSignaling"></label>
-      <button @click="connect">Connect</button>
+    <div v-if="!signalingIsConnected" class="form-group">
+      <label for="sockets-address">Address: </label>
+      <input
+        id="sockets-address"
+        class="form-control"
+        v-model="address"
+        :disabled="connectingSignaling"
+        aria-describedby="socketsAddressHelp"
+      >
+      <small id="socketsAddressHelp" class="form-text text-muted">Use the default Web Sockets signaling server or enter your one.</small>
     </div>
-    <div v-if="signalingIsConnected">Signaling is CONNECTED, waiting for peers</div>
-    <div v-if="peerConnected">PEER CONNECTED</div>
+    <button class="btn btn-primary" @click="connect">Connect</button>
+
+    <div v-if="signalingIsConnected" class="alert alert-warning">Signaling is CONNECTED, waiting for peers</div>
+    <div v-if="peerConnected" class="alert alert-success">PEER CONNECTED</div>
   </div>
 </template>
 

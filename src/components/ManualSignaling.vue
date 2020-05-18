@@ -2,15 +2,22 @@
   <div>
     Send it to other party:<br>
     <br>
-    <textarea v-if="showOutgoingMessage" v-model="textToSend" class="text-to-copy"></textarea><button @click="copy">Copy</button><br>
-    <div><button @click="initiate">Initiate</button></div>
+    <textarea
+      v-if="showOutgoingMessage"
+      v-model="textToSend"
+      class="text-to-copy form-control"
+    ></textarea>
+    <button @click="copy" class="btn btn-secondary">Copy</button><br>
+
+    <div><button @click="initiate" class="btn btn-secondary">Initiate</button></div>
     <div>
-      <div>Paste it here:<br><textarea v-model="remote"></textarea><br/>
-        <button @click="applyRemote">Apply remote</button>
+      <div>Paste it here:<br>
+        <textarea v-model="remote" class="form-control"></textarea><br/>
+        <button @click="applyRemote" class="btn btn-secondary">Apply remote</button>
       </div>
     </div>
-    <div v-if="connectionError">Connection error</div>
-    <div v-if="isConnected">CONNECTED</div>
+    <div v-if="connectionError" class="alert alert-danger">Connection error</div>
+    <div v-if="isConnected" class="alert alert-success">CONNECTED</div>
   </div>
 </template>
 
