@@ -1,7 +1,7 @@
 <template>
   <div>
-    <h3>Ignore and block preferences</h3>
-    <table border="1">
+    <h1>Ignore and block preferences</h1>
+    <table class="table table-bordered">
       <tr>
         <td>Block Blacklist <input type="checkbox" @click="toggleBlockBlackList()" :checked="preferencesIgnoreAndBlock.isBlockBlackListEnabled"></td>
         <td>Ignore Blacklist <input type="checkbox" @click="toggleIgnoreBlackList()" :checked="preferencesIgnoreAndBlock.isIgnoreBlackListEnabled"></td>

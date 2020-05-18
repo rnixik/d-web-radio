@@ -79,6 +79,11 @@
                   <span>Users with transactions</span>
                 </router-link>
               </li>
+              <li>
+                <router-link to="ignore-and-block">
+                  <span>Ignore and block</span>
+                </router-link>
+              </li>
             </ul>
           </div>
           <!-- sidebar-menu  -->
@@ -108,15 +113,10 @@
             :activeConnectionsNum="activeConnectionsNum"
             :myTransactions="myTransactions"
             :usersWithTransactions="usersWithTransactions"
+            :preferencesIgnoreAndBlock="preferencesIgnoreAndBlock"
           ></router-view>
 
           <div id="validator-player-container" style="display: none;"></div>
-
-          <div v-if="preferencesIgnoreAndBlock">
-            <ignore-and-block-preferences :preferences-ignore-and-block="preferencesIgnoreAndBlock"></ignore-and-block-preferences>
-          </div>
-
-          <div>Used storage space: {{ (this.usedStorageSpace / 1024 / 1024).toFixed(2) }} MB</div>
 
           <v-dialog/>
         </div>
@@ -239,7 +239,7 @@ import { Transaction } from 'd-web-core/lib/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
 import { EventHub } from '@/components/EventHub'
 import { User } from 'd-web-core/lib/models/User'
-import IgnoreAndBlockPreferences from '@/components/IgnoreAndBlockPreferences.vue'
+import IgnoreAndBlockPreferences from '@/components/pages/IgnoreAndBlockPreferences.vue'
 import { PreferencesIgnoreAndBlock } from 'd-web-core/lib/models/PreferencesIgnoreAndBlock'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
 import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
