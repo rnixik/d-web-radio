@@ -46,7 +46,10 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" ref="postUrlCloseBtn" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary disabled" v-if="isInProgress">...</button>
+            <button type="button" class="btn btn-primary disabled" v-if="isInProgress">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Loading...
+            </button>
             <button
               type="button"
               class="btn btn-primary"
