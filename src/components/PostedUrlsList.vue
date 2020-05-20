@@ -1,18 +1,26 @@
 <template>
   <div>
-    Urls ({{ postedUrls.length }}):
-    <ol v-if="postedUrls && postedUrls.length">
-      <li v-for="postedUrl in postedUrls.slice(0, 100)" :key="postedUrl.urlModel.videoId">
-        <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.getNegativeVotes().length }}</span>
-        <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
-        {{ postedUrl.urlModel.title }} by
-        <user :user="postedUrl.urlModel.user"></user>
-        at {{ postedUrl.storedAt.toLocaleString() }}
-        <span v-if="user && !postedUrl.hasUserVoted(user)">
-          <span @click="voteUp(postedUrl)">[UP]</span>
-          <span @click="voteDown(postedUrl)">[DOWN]</span>
-        </span>
-        <span @click="play(postedUrl)">[PLAY]</span>
+    <ol v-if="postedUrls && postedUrls.length" class="list-unstyled">
+      <li
+        v-for="postedUrl in postedUrls.slice(0, 100)"
+        :key="postedUrl.urlModel.videoId"
+        class="media mb-4"
+      >
+        <img :src="postedUrl.urlModel.poster" width="64" alt="" class="mr-3">
+        <div class="media-body">
+          <h5 class="mt-0">
+            <a href="javascript:void(0);" @click="play(postedUrl)">{{ postedUrl.urlModel.title }}</a>
+          </h5>
+          <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.getNegativeVotes().length }}</span>
+          <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
+          by
+          <user :user="postedUrl.urlModel.user"></user>
+          at {{ postedUrl.storedAt.toLocaleString() }}
+          <span v-if="user && !postedUrl.hasUserVoted(user)">
+            <span @click="voteUp(postedUrl)">[UP]</span>
+            <span @click="voteDown(postedUrl)">[DOWN]</span>
+          </span>
+        </div>
       </li>
     </ol>
   </div>

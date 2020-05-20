@@ -8,6 +8,7 @@ export class YouTubeUrlModel implements TransactionModel {
   public user: User
   public duration: number | null = null
   public title: string | null = null
+  public poster: string | null = null
 
   constructor (videoId: string, user: User) {
     this.videoId = videoId
@@ -16,9 +17,5 @@ export class YouTubeUrlModel implements TransactionModel {
 
   getSerializer (): ModelSerializer {
     return new YouTubeUrlSerializer()
-  }
-
-  public getYouTubeUrl (): string {
-    return 'https://www.youtube.com/embed/' + this.videoId + '?autoplay=0'
   }
 }

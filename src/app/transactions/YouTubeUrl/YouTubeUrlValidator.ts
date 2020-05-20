@@ -61,6 +61,7 @@ export class YouTubeUrlValidator implements SpecificValidator {
           youTubeUrl.title = playerAny.embed.getVideoData().title
         }
         youTubeUrl.duration = player.duration
+        youTubeUrl.poster = player.poster
 
         if (!youTubeUrl.duration) {
           reject(new Error('Video is unavailable'))

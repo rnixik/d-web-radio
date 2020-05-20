@@ -11,6 +11,7 @@ export class YouTubeUrlSerializer implements ModelSerializer {
     if (local) {
       data['d'] = model.duration
       data['t'] = model.title
+      data['p'] = model.poster
     }
 
     return data
@@ -25,6 +26,9 @@ export class YouTubeUrlSerializer implements ModelSerializer {
       }
       if (data['t']) {
         model.title = data['t']
+      }
+      if (data['p']) {
+        model.poster = data['p']
       }
     }
 
