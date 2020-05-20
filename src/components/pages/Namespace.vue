@@ -399,7 +399,6 @@ export default class Namespace extends Vue {
     this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
 
     this.youTubeRadio = new YouTubeRadio(this.dApp.transactionService, this.dApp.userService)
-    this.youTubeRadio.addOnNewPostedUrlsCallback(this.handleNewPostedUrls)
 
     const dApp = this.dApp
     this.connectionsPool.addOnOpenCallback(() => {
@@ -448,18 +447,8 @@ export default class Namespace extends Vue {
     }
   }
 
-  async handleNewPostedUrls () {
-    if (!this.youTubeRadio) {
-      return
-    }
-    this.postedUrls = await this.youTubeRadio.getPostedUrls(true)
-    this.postedUrlsTop = await this.youTubeRadio.getPostedUrls(false)
-  }
-
   async handleNewTransactions (newTransactions: Transaction[]) {
-    if (this.dApp) {
-      this.usersWithTransactions = await this.dApp.userService.getUsersWithTransactions(true)
-    }
+    await this.loadModels()
   }
 
   async loadModels () {
