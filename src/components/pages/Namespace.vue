@@ -290,10 +290,6 @@ export default class Namespace extends Vue {
   }
 
   created () {
-    this.$root.$on('manualConnected', () => {
-      this.showManualConnection = false
-    })
-
     EventHub.$on('userControl', (action: string, user: User) => {
       if (!this.dApp) {
         return

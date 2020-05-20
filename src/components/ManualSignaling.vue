@@ -69,11 +69,10 @@ export default class ManualSignaling extends Vue {
       this.waitingForConnection = false
     })
 
-    const connection = this.connectionsPool!.connect(this.signaling!)
+    const connection = this.connectionsPool!.connect(this.signaling)
     connection.addOnOpenCallback(() => {
       this.isConnected = true
       this.waitingForConnection = false
-      this.$root.$emit('manualConnected')
     })
   }
 
