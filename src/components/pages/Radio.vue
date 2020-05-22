@@ -1,20 +1,26 @@
 <template>
   <div>
-    <h1>Radio</h1>
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="float-left mr-4"><h1>Radio</h1></div>
+        <div class="float-left">
+          <button
+            role="button"
+            class="btn btn-primary"
+            v-bind:class="activeConnectionsNum < 1 ? 'disabled' : ''"
+            data-toggle="modal"
+            data-target="#postUrlModal"
+          >Add video
+          </button>
+      </div>
+      </div>
+    </div>
+
     <posted-urls-list
       :posted-urls="postedUrls"
       :user="authenticatedUser"
       list-id="latest"
     ></posted-urls-list>
-
-    <button
-      role="button"
-      class="btn btn-primary"
-      v-bind:class="activeConnectionsNum < 1 ? 'disabled' : ''"
-      data-toggle="modal"
-      data-target="#postUrlModal"
-    >Add video
-    </button>
 
     <!-- Modal -->
     <div class="modal fade" id="postUrlModal" tabindex="-1" role="dialog" aria-labelledby="postUrlModalLabel" aria-hidden="true">

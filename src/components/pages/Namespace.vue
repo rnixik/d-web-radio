@@ -99,9 +99,10 @@
             </div>
           </transition>
           <div v-if="playerVideoId">
-            <label>
-              <input type="checkbox" v-model="doNotAddToPlaylistDownVoted"> Do not add down-voted urls to playlist
-            </label>
+            <div class="form-group form-check">
+              <input type="checkbox" v-model="doNotAddToPlaylistDownVoted" class="form-check-input" id="doNotAddToPlaylistDownVoted">
+              <label class="form-check-label" for="doNotAddToPlaylistDownVoted">Do not add down-voted urls to playlist</label>
+            </div>
           </div>
 
           <router-view

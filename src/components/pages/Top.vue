@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Top 100</h1>
+    <h1 class="mb-4">Top 100</h1>
     <posted-urls-list
       :posted-urls="postedUrlsTop.slice(0, 100)"
       :user="authenticatedUser"
