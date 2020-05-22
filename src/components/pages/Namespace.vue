@@ -284,6 +284,7 @@ export default class Namespace extends Vue {
   private playingListId: string = ''
   private doNotAddToPlaylistDownVoted = true
   private dApp?: RegularDecentralizedApplication
+  private networkingIsStarted = false
 
   $refs!: {
     loginCloseBtn: HTMLElement
@@ -403,12 +404,29 @@ export default class Namespace extends Vue {
 
     const dApp = this.dApp
     this.connectionsPool.addOnOpenCallback(() => {
-      dApp.startNetworking(this.handleNewTransactions, this.broadcastInterval)
+      if (!this.networkingIsStarted) {
+        dApp.transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
+        this.broadcast()
+        this.networkingIsStarted = true
+      }
     })
 
     this.usedStorageSpace = this.dApp.storageService.getUsedStorageSpace()
 
     this.loadModels()
+  }
+
+  broadcast (): void {
+    if (!this.dApp) {
+      return
+    }
+    this.dApp.transactionService.broadcastTransactions()
+    const timeout = this.getAdaptiveBroadcastInterval()
+    window.setTimeout(this.broadcast, timeout)
+  }
+
+  getAdaptiveBroadcastInterval (): number {
+    return Math.max(1, this.activeConnectionsNum) * 30000
   }
 
   get identicon () {
