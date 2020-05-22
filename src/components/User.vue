@@ -1,6 +1,6 @@
 <template>
   <span>
-    <span v-html="identicon"></span>
+    <identicon v-if="showIdenticon" :user="user" size="24"></identicon>
     <span @click="showDialog(user)">{{ user.login }}</span>
   </span>
 </template>
@@ -9,15 +9,16 @@
 import { Component, Emit, Vue, Prop } from 'vue-property-decorator'
 import { User } from 'd-web-core/lib/models/User'
 import { EventHub } from '@/components/EventHub'
+import Identicon from '@/components/Identicon.vue'
 
-@Component
+@Component({
+  components: {
+    Identicon
+  }
+})
 export default class UsersList extends Vue {
   @Prop({ default: null }) user!: User
-
-  get identicon () {
-    const jdenticon = require('jdenticon')
-    return jdenticon.toSvg(this.user.publicKey, 24)
-  }
+  @Prop({ default: true }) showIdenticon!: boolean
 
   showDialog (user: User) {
     this.$modal.show('dialog', {
