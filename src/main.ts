@@ -26,7 +26,7 @@ Vue.use(VuePlyr.default, {
 })
 
 require('bootstrap/dist/js/bootstrap.bundle.js')
-require('bootstrap/dist/css/bootstrap.css')
+require('@/assets/bootstrap.min.css')
 
 const routes = [
   {

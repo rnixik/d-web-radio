@@ -1,7 +1,7 @@
 <template>
   <span>
     <identicon v-if="showIdenticon" :user="user" size="24"></identicon>
-    <span @click="showDialog(user)">{{ user.login }}</span>
+    <a href="javascript:void(0);" @click="showDialog(user)">{{ user.login }}</a>
   </span>
 </template>
 
