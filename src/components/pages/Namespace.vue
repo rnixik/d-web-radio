@@ -266,18 +266,16 @@ export default class Namespace extends Vue {
   private namespace = ''
   private connectionsPool: WebRtcConnectionsPool | null = null
   private activeConnectionsNum: number = 0
-  private showManualConnection: boolean = false
   private login = ''
   private password = ''
   private authErrorMessage = ''
   private youTubeRadio?: YouTubeRadio
   private authenticatedUser?: AuthenticatedUser | null = null
-  private postedUrls: PostedUrl[] = []
+  private postedUrls: readonly PostedUrl[] = []
   private postedUrlsTop: PostedUrl[] = []
   private usersWithTransactions: UserWithTransactions[] = []
   private myTransactions: Transaction[] = []
   private preferencesIgnoreAndBlock: PreferencesIgnoreAndBlock | null = null
-  private broadcastInterval = 30000
   private usedStorageSpace = 0
   private playerVideoId: string | null = null
   private playlist: string[] = []
@@ -507,6 +505,9 @@ export default class Namespace extends Vue {
     }
 
     this.playlist = list.map((url: PostedUrl) => url.urlModel.videoId)
+    if (this.playingListId !== 'top') {
+      this.playlist = this.playlist.reverse()
+    }
   }
 }
 </script>
