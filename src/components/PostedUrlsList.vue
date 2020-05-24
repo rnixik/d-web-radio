@@ -44,7 +44,12 @@
             </svg>
           </a>
         </div>
-        <img :src="postedUrl.urlModel.poster" @click="play(postedUrl)" width="156" alt="" class="mr-3">
+        <div class="mr-3">
+          <img :src="postedUrl.urlModel.poster" @click="play(postedUrl)" width="156" alt="">
+          <div class="text-muted">
+            <small>{{ postedUrl.storedAt.toLocaleString() }}</small>
+          </div>
+        </div>
         <div class="media-body">
           <h5 class="mt-0">
             <a
@@ -56,10 +61,15 @@
           <div class="media">
             <identicon :user="postedUrl.urlModel.user" size="60" class="mr-2"></identicon>
             <div class="media-body">
-              <div>
-                {{ postedUrl.storedAt.toLocaleString() }}
+              <div class="mb-2">
+              <user
+                :user="postedUrl.urlModel.user"
+                :showIdenticon="false"
+              ></user>
               </div>
-              <user :user="postedUrl.urlModel.user" :showIdenticon="false"></user>
+              <div class="text-muted" :title="postedUrl.urlModel.user.publicKey">
+                {{ postedUrl.urlModel.user.publicKey.substr(0, 4) }}...{{ postedUrl.urlModel.user.publicKey.substr(-4) }}
+              </div>
             </div>
           </div>
         </div>
