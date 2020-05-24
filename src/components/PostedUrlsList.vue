@@ -5,24 +5,59 @@
         v-for="postedUrl in postedUrls.slice(0, 100)"
         :key="postedUrl.urlModel.videoId"
         class="media mb-5"
+        v-bind:class="{
+          voted: user && postedUrl.hasUserVoted(user),
+          votedUp: user && postedUrl.hasUserVotedPositively(user),
+          votedDown: user && postedUrl.hasUserVotedNegatively(user),
+          canVote: user && !postedUrl.hasUserVoted(user)
+        }"
       >
-        <img :src="postedUrl.urlModel.poster" width="156" alt="" class="mr-3">
+        <div class="mr-4 text-center votes-container">
+          <a
+            @click="voteUp(postedUrl)"
+             href="javascript: void(0);"
+             class="vote-btn vote-up-btn"
+          >
+            <svg id="i-chevron-top" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M30 20 L16 8 2 20" />
+            </svg>
+          </a>
+          <div>
+            <svg id="i-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M16 2 L16 30 M2 16 L30 16" />
+            </svg>
+            {{ postedUrl.getPositiveVotes().length }}
+          </div>
+          <div>
+            <svg id="i-minus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="14" height="14" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M2 16 L30 16" />
+            </svg>
+            {{ postedUrl.getNegativeVotes().length }}
+          </div>
+          <a
+            @click="voteDown(postedUrl)"
+            href="javascript: void(0);"
+            class="vote-btn vote-down-btn"
+          >
+            <svg id="i-chevron-bottom" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+              <path d="M30 12 L16 24 2 12" />
+            </svg>
+          </a>
+        </div>
+        <img :src="postedUrl.urlModel.poster" @click="play(postedUrl)" width="156" alt="" class="mr-3">
         <div class="media-body">
           <h5 class="mt-0">
-            <a href="javascript:void(0);" @click="play(postedUrl)">{{ postedUrl.urlModel.title }}</a>
+            <a
+              href="javascript:void(0);"
+              @click="play(postedUrl)"
+              class="video-title"
+            >{{ postedUrl.urlModel.title }}</a>
           </h5>
           <div class="media">
             <identicon :user="postedUrl.urlModel.user" size="60" class="mr-2"></identicon>
             <div class="media-body">
               <div>
                 {{ postedUrl.storedAt.toLocaleString() }}
-                <span v-bind:class="{voted: user && postedUrl.hasUserVotedNegatively(user)}">N{{ postedUrl.getNegativeVotes().length }}</span>
-                <span v-bind:class="{voted: user && postedUrl.hasUserVotedPositively(user)}">P{{ postedUrl.getPositiveVotes().length }}</span>
-
-                <span v-if="user && !postedUrl.hasUserVoted(user)">
-                  <span @click="voteUp(postedUrl)">[UP]</span>
-                  <span @click="voteDown(postedUrl)">[DOWN]</span>
-                </span>
               </div>
               <user :user="postedUrl.urlModel.user" :showIdenticon="false"></user>
             </div>
@@ -34,8 +69,28 @@
 </template>
 
 <style scoped>
-  .voted {
+  .vote-btn {
+    color: #4e5458;
+    display: block;
+  }
+
+  .canVote .vote-btn:hover {
+    color: #ffffff;
+  }
+
+  .votedDown .vote-down-btn,
+  .votedUp .vote-up-btn
+  {
     font-weight: bold;
+    color: #ffffff;
+  }
+
+  .voted .vote-btn {
+    cursor: not-allowed;
+  }
+
+  .votedDown .video-title {
+    color: #4e5458;
   }
 </style>
 
@@ -59,10 +114,16 @@ export default class PostedUrlsList extends Vue {
   @Prop({ default: '' }) listId!: string
 
   voteUp (postedUrl: PostedUrl) {
+    if (postedUrl.hasUserVoted(this.user)) {
+      return
+    }
     EventHub.$emit('vote', postedUrl, true)
   }
 
   voteDown (postedUrl: PostedUrl) {
+    if (postedUrl.hasUserVoted(this.user)) {
+      return
+    }
     EventHub.$emit('vote', postedUrl, false)
   }
 
