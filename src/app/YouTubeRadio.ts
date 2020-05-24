@@ -54,6 +54,17 @@ export class YouTubeRadio {
         return 1
       }
 
+      const origPosA = postedUrls.indexOf(a)
+      const origPosB = postedUrls.indexOf(b)
+
+      if (origPosA > origPosB) {
+        return -1
+      }
+
+      if (origPosA < origPosB) {
+        return 1
+      }
+
       return 0
     })
   }
