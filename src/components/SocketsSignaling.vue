@@ -11,10 +11,22 @@
       >
       <small id="socketsAddressHelp" class="form-text text-muted">Use the default Web Sockets signaling server or enter your one.</small>
     </div>
-    <button class="btn btn-primary" @click="connect">Connect</button>
 
-    <div v-if="signalingIsConnected" class="alert alert-warning">Signaling is CONNECTED, waiting for peers</div>
-    <div v-if="peerConnected" class="alert alert-success">PEER CONNECTED</div>
+    <button class="btn btn-primary mb-4" @click="connect">Connect</button>
+
+    <div v-if="signalingIsConnected" class="alert alert-warning mb-4">Signaling is CONNECTED, waiting for peers</div>
+
+    <div v-if="peerConnected" class="alert alert-success mb-4">
+      PEER CONNECTED
+      <p>
+        <router-link to="radio"><span>Go to Radio page</span></router-link>
+      </p>
+    </div>
+
+    <div v-if="countdown > 0 && !cancelCountdown" class="alert alert-info mb-4">
+      Auto-connect in {{ countdown }}s...
+      <button class="btn btn-secondary" @click="cancelCountdown = true">Cancel</button>
+    </div>
   </div>
 </template>
 
@@ -31,6 +43,26 @@ export default class SocketsSignaling extends Vue {
   peerConnected: boolean = false
   connectingSignaling: boolean = false
   signalingIsConnected: boolean = false
+  countdown = 5
+  cancelCountdown = false
+
+  created (): void {
+    this.countdownTick()
+  }
+
+  countdownTick (): void {
+    if (this.cancelCountdown) {
+      return
+    }
+    this.countdown -= 1
+    if (this.countdown > 0) {
+      window.setTimeout(() => {
+        this.countdownTick()
+      }, 1000)
+    } else {
+      this.connect()
+    }
+  }
 
   connect (): void {
     this.connectingSignaling = true
