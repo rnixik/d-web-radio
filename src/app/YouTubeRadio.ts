@@ -1,24 +1,33 @@
 import { AuthenticatedUser } from 'd-web-core/lib/models/AuthenticatedUser'
-import { TransactionService } from 'd-web-core/lib/services/TransactionService'
 import { YouTubeUrlModel } from '@/app/transactions/YouTubeUrl/YouTubeUrlModel'
 import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
 import { Transaction } from 'd-web-core/lib/models/Transaction'
-import { UserServiceInterface } from 'd-web-core/lib/types/UserServiceInterface'
 import { YouTubeIdExtractor } from '@/app/services/YouTubeIdExtractor'
 import { YouTubeUrlVoteModel } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteModel'
 import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
 import { PostedUrl } from '@/app/models/PostedUrl'
+import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentralizedApplication'
+import { WebRtcConnectionsPool } from 'webrtc-connection'
+import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
+import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
+import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
+import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 
 export class YouTubeRadio {
-  private readonly transactionService: TransactionService
-  private readonly userService: UserServiceInterface
+  public readonly dApp: RegularDecentralizedApplication
   private onNewPostedUrlsCallbacks: ((urls: PostedUrl[]) => void)[] = []
 
-  constructor (transactionService: TransactionService, userService: UserServiceInterface) {
-    this.transactionService = transactionService
-    this.userService = userService
+  constructor (namespace: string, maxVideoDuration: number, connectionsPool: WebRtcConnectionsPool) {
+    const youTubeUrlValidator = new YouTubeUrlValidator()
+    youTubeUrlValidator.maxVideoDuration = maxVideoDuration
 
-    this.transactionService.addOnNewTransactionsCallback((newTransactions: Transaction[]) => {
+    this.dApp = new RegularDecentralizedApplication(namespace, connectionsPool)
+    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
+    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
+    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
+    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
+
+    this.dApp.transactionService.addOnNewTransactionsCallback((newTransactions: Transaction[]) => {
       this.handleNewTransactions(newTransactions)
     })
   }
@@ -28,12 +37,12 @@ export class YouTubeRadio {
     const videoIdExtractor = new YouTubeIdExtractor()
     const videoId = videoIdExtractor.extractVideoId(url)
     const youTubeUrlModel = new YouTubeUrlModel(videoId, publicUser)
-    const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
-    await this.transactionService.signAndSend(authenticatedUser, transaction)
+    const transaction = await this.dApp.transactionService.createTransaction(publicUser, YouTubeUrlTransactionType.t, youTubeUrlModel)
+    await this.dApp.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
   public async getPostedUrls (sortByDate = false): Promise<PostedUrl[]> {
-    const storedTransactions = await this.transactionService.getTransactions(true)
+    const storedTransactions = await this.dApp.transactionService.getTransactions(true)
     const postedUrls = this.extractUrlsFromTransactions(storedTransactions)
 
     return postedUrls.sort((a: PostedUrl, b: PostedUrl) => {
@@ -85,8 +94,8 @@ export class YouTubeRadio {
   public async vote (authenticatedUser: AuthenticatedUser, postedUrl: PostedUrl, isPositive: boolean): Promise<void> {
     const publicUser = authenticatedUser.getPublicUser()
     const youTubeUrlVoteModel = new YouTubeUrlVoteModel(postedUrl.urlModel.videoId, publicUser, isPositive)
-    const transaction = await this.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
-    await this.transactionService.signAndSend(authenticatedUser, transaction)
+    const transaction = await this.dApp.transactionService.createTransaction(publicUser, YouTubeUrlVoteTransactionType.t, youTubeUrlVoteModel)
+    await this.dApp.transactionService.signAndSend(authenticatedUser, transaction)
   }
 
   public extractUrlsFromTransactions (transactions: Transaction[]): PostedUrl[] {

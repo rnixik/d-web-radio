@@ -232,9 +232,6 @@ import PostedUrlsList from '@/components/PostedUrlsList.vue'
 import { WebRtcConnectionsPool } from 'webrtc-connection'
 import { AuthenticatedUser } from 'd-web-core/lib/models/AuthenticatedUser'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
-import { YouTubeUrlTransactionType } from '@/app/transactions/YouTubeUrl/YouTubeUrlTransactionType'
-import { YouTubeUrlSerializer } from '@/app/transactions/YouTubeUrl/YouTubeUrlSerializer'
-import { YouTubeUrlValidator } from '@/app/transactions/YouTubeUrl/YouTubeUrlValidator'
 import { UserWithTransactions } from 'd-web-core/lib/models/UserWithTransactions'
 import { Transaction } from 'd-web-core/lib/models/Transaction'
 import UsersList from '@/components/UsersList.vue'
@@ -242,12 +239,8 @@ import { EventHub } from '@/components/EventHub'
 import { User } from 'd-web-core/lib/models/User'
 import IgnoreAndBlockPreferences from '@/components/pages/IgnoreAndBlockPreferences.vue'
 import { PreferencesIgnoreAndBlock } from 'd-web-core/lib/models/PreferencesIgnoreAndBlock'
-import { YouTubeUrlVoteTransactionType } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteTransactionType'
-import { YouTubeUrlVoteSerializer } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteSerializer'
-import { YouTubeUrlVoteValidator } from '@/app/transactions/YouTubeUrlVote/YouTubeUrlVoteValidator'
 import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
-import { RegularDecentralizedApplication } from 'd-web-core/lib/RegularDecentralizedApplication'
 
 require('@/assets/sidebar.css')
 
@@ -281,7 +274,6 @@ export default class Namespace extends Vue {
   private playlist: string[] = []
   private playingListId: string = ''
   private doNotAddToPlaylistDownVoted = true
-  private dApp?: RegularDecentralizedApplication
   private networkingIsStarted = false
 
   $refs!: {
@@ -291,69 +283,69 @@ export default class Namespace extends Vue {
 
   created () {
     EventHub.$on('userControl', (action: string, user: User) => {
-      if (!this.dApp) {
+      if (!this.youTubeRadio) {
         return
       }
 
       switch (action) {
         case 'block':
-          this.dApp.ignoreAndBlockControlService.addUserToBlockBlackList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.addUserToBlockBlackList(user)
           break
         case 'ignore':
-          this.dApp.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.addUserToIgnoreBlackList(user)
           break
         case 'addToBlockWhiteList':
-          this.dApp.ignoreAndBlockControlService.addUserToBlockWhiteList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.addUserToBlockWhiteList(user)
           break
         case 'addToIgnoreWhiteList':
-          this.dApp.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.addUserToIgnoreWhiteList(user)
           break
         case 'removeFromBlockBlackList':
-          this.dApp.ignoreAndBlockControlService.removeUserFromBlockBlackList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.removeUserFromBlockBlackList(user)
           break
         case 'removeFromIgnoreBlackList':
-          this.dApp.ignoreAndBlockControlService.removeUserFromIgnoreBlackList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.removeUserFromIgnoreBlackList(user)
           break
         case 'removeFromBlockWhiteList':
-          this.dApp.ignoreAndBlockControlService.removeUserFromBlockWhiteList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.removeUserFromBlockWhiteList(user)
           break
         case 'removeFromIgnoreWhiteList':
-          this.dApp.ignoreAndBlockControlService.removeUserFromIgnoreWhiteList(user)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.removeUserFromIgnoreWhiteList(user)
           break
         default:
           console.error('Unknown userControl action', action)
       }
 
-      if (this.dApp) {
-        this.dApp.transactionService.filterAndStoreStoredTransactions()
+      if (this.youTubeRadio.dApp) {
+        this.youTubeRadio.dApp.transactionService.filterAndStoreStoredTransactions()
         this.loadModels()
       }
     })
 
     EventHub.$on('setIgnoreAndBlockListEnabled', (list: string, value: boolean) => {
-      if (!this.dApp) {
+      if (!this.youTubeRadio) {
         return
       }
 
       switch (list) {
         case 'blockBlack':
-          this.dApp.ignoreAndBlockControlService.setBlockBlackListEnabled(value)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.setBlockBlackListEnabled(value)
           break
         case 'ignoreBlack':
-          this.dApp.ignoreAndBlockControlService.setIgnoreBlackListEnabled(value)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.setIgnoreBlackListEnabled(value)
           break
         case 'blockWhite':
-          this.dApp.ignoreAndBlockControlService.setBlockWhiteListEnabled(value)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.setBlockWhiteListEnabled(value)
           break
         case 'ignoreWhite':
-          this.dApp.ignoreAndBlockControlService.setIgnoreWhiteListEnabled(value)
+          this.youTubeRadio.dApp.ignoreAndBlockControlService.setIgnoreWhiteListEnabled(value)
           break
         default:
           console.error('Unknown setIgnoreAndBlockListEnabled list', list)
       }
 
-      if (this.dApp) {
-        this.dApp.transactionService.filterAndStoreStoredTransactions()
+      if (this.youTubeRadio) {
+        this.youTubeRadio.dApp.transactionService.filterAndStoreStoredTransactions()
         this.loadModels()
       }
     })
@@ -389,18 +381,9 @@ export default class Namespace extends Vue {
       this.activeConnectionsNum -= 1
     })
 
-    const youTubeUrlValidator = new YouTubeUrlValidator()
-    youTubeUrlValidator.maxVideoDuration = 300
+    this.youTubeRadio = new YouTubeRadio(this.namespace, 300, this.connectionsPool)
 
-    this.dApp = new RegularDecentralizedApplication(this.namespace, this.connectionsPool)
-    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlTransactionType.t, new YouTubeUrlSerializer())
-    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlTransactionType.t, youTubeUrlValidator)
-    this.dApp.transactionTypeResolver.setPayloadSerializer(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteSerializer())
-    this.dApp.transactionTypeResolver.setSpecificValidator(YouTubeUrlVoteTransactionType.t, new YouTubeUrlVoteValidator())
-
-    this.youTubeRadio = new YouTubeRadio(this.dApp.transactionService, this.dApp.userService)
-
-    const dApp = this.dApp
+    const dApp = this.youTubeRadio.dApp
     this.connectionsPool.addOnOpenCallback(() => {
       if (!this.networkingIsStarted) {
         dApp.transactionService.addOnNewTransactionsCallback(this.handleNewTransactions)
@@ -409,16 +392,16 @@ export default class Namespace extends Vue {
       }
     })
 
-    this.usedStorageSpace = this.dApp.storageService.getUsedStorageSpace()
+    this.usedStorageSpace = this.youTubeRadio.dApp.storageService.getUsedStorageSpace()
 
     this.loadModels()
   }
 
   broadcast (): void {
-    if (!this.dApp) {
+    if (!this.youTubeRadio) {
       return
     }
-    this.dApp.transactionService.broadcastTransactions()
+    this.youTubeRadio.dApp.transactionService.broadcastTransactions()
     const timeout = this.getAdaptiveBroadcastInterval()
     window.setTimeout(this.broadcast, timeout)
   }
@@ -436,13 +419,13 @@ export default class Namespace extends Vue {
   }
 
   async register () {
-    if (!this.dApp) {
+    if (!this.youTubeRadio) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = await this.dApp.userService.register(this.login, this.password)
+      this.authenticatedUser = await this.youTubeRadio.dApp.userService.register(this.login, this.password)
       this.$refs.registerCloseBtn.click()
     } catch (e) {
       this.authErrorMessage = e.toString()
@@ -450,13 +433,13 @@ export default class Namespace extends Vue {
   }
 
   async signin () {
-    if (!this.dApp) {
+    if (!this.youTubeRadio) {
       return
     }
     this.authErrorMessage = ''
 
     try {
-      this.authenticatedUser = await this.dApp.userService.login(this.login, this.password)
+      this.authenticatedUser = await this.youTubeRadio.dApp.userService.login(this.login, this.password)
       this.$refs.loginCloseBtn.click()
       await this.loadModels()
     } catch (e) {
@@ -474,8 +457,8 @@ export default class Namespace extends Vue {
       this.postedUrlsTop = await this.youTubeRadio.getPostedUrls(false)
       this.updatePlaylist()
     }
-    if (this.dApp) {
-      this.usersWithTransactions = await this.dApp.userService.getUsersWithTransactions(true)
+    if (this.youTubeRadio) {
+      this.usersWithTransactions = await this.youTubeRadio.dApp.userService.getUsersWithTransactions(true)
       if (this.authenticatedUser) {
         for (const uwt of this.usersWithTransactions) {
           if (uwt.user.publicKey === this.authenticatedUser.publicKey) {
@@ -485,8 +468,8 @@ export default class Namespace extends Vue {
         }
       }
     }
-    if (this.dApp) {
-      this.preferencesIgnoreAndBlock = await this.dApp.ignoreAndBlockControlService.getPreferences()
+    if (this.youTubeRadio) {
+      this.preferencesIgnoreAndBlock = await this.youTubeRadio.dApp.ignoreAndBlockControlService.getPreferences()
     }
   }
 
