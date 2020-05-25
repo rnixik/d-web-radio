@@ -49,6 +49,9 @@
             <div class="alert alert-warning" v-if="activeConnectionsNum < 1">
               You are not connected to the network
             </div>
+            <div class="alert alert-warning" v-if="!authenticatedUser">
+              You are not logged-in to publish urls
+            </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" ref="postUrlCloseBtn" data-dismiss="modal">Close</button>
