@@ -27,7 +27,7 @@ export default class SocketsSignaling extends Vue {
   @Prop() connectionsPool?: WebRtcConnectionsPool
   @Prop({ default: 'example' }) room!: string
   signaling?: SocketIoSignaling
-  address: string = 'https://signaler.local:8881'
+  address: string = 'https://signaler.getid.org'
   peerConnected: boolean = false
   connectingSignaling: boolean = false
   signalingIsConnected: boolean = false
