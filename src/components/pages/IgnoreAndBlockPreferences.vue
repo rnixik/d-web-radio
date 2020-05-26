@@ -45,7 +45,7 @@
       <tr>
         <td colspan="2">
           Blocked transaction hashes:
-          {{ preferencesIgnoreAndBlock.blockedTransactionHashes.size }}
+          {{ preferencesIgnoreAndBlock.blockedTransactionHashes.length }}
           <button class="btn btn-sm btn-secondary ml-2" @click="clearBlockedTransactionHashes()">Clear</button>
         </td>
       </tr>

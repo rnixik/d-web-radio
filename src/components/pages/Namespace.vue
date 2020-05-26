@@ -353,6 +353,7 @@ export default class Namespace extends Vue {
     EventHub.$on('clearBlockedTransactionHashes', async () => {
       if (this.youTubeRadio) {
         await this.youTubeRadio.dApp.ignoreAndBlockControlService.clearTransactionHashesToBlock()
+        await this.loadModels()
       }
     })
 
