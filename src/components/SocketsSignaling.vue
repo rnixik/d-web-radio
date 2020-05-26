@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="!signalingIsConnected" class="form-group">
-      <label for="sockets-address">Address: </label>
+      <label for="sockets-address">Address:</label>
       <input
         id="sockets-address"
         class="form-control"

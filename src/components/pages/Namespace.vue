@@ -108,6 +108,7 @@
           </div>
 
           <router-view
+            :namespace="namespace"
             :connectionsPool="connectionsPool"
             :postedUrls="postedUrls"
             :postedUrlsTop="postedUrlsTop"
