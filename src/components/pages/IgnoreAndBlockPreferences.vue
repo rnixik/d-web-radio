@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>Ignore and block preferences</h1>
-    <table class="table table-bordered">
+    <table class="table table-bordered" v-if="preferencesIgnoreAndBlock">
       <tr>
         <td>Block Blacklist <input type="checkbox" @click="toggleBlockBlackList()" :checked="preferencesIgnoreAndBlock.isBlockBlackListEnabled"></td>
         <td>Ignore Blacklist <input type="checkbox" @click="toggleIgnoreBlackList()" :checked="preferencesIgnoreAndBlock.isIgnoreBlackListEnabled"></td>
@@ -40,6 +40,13 @@
               <user :user="user"></user> <span @click="removeFromIgnoreWhiteList(user)">[remove]</span>
             </li>
           </ul>
+        </td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          Blocked transaction hashes:
+          {{ preferencesIgnoreAndBlock.blockedTransactionHashes.size }}
+          <button class="btn btn-sm btn-secondary ml-2" @click="clearBlockedTransactionHashes()">Clear</button>
         </td>
       </tr>
     </table>
@@ -93,6 +100,10 @@ export default class IgnoreAndBlockPreferences extends Vue {
   toggleIgnoreWhiteList () {
     const newValue = !this.preferencesIgnoreAndBlock.isIgnoreWhiteListEnabled
     EventHub.$emit('setIgnoreAndBlockListEnabled', 'ignoreWhite', newValue)
+  }
+
+  clearBlockedTransactionHashes () {
+    EventHub.$emit('clearBlockedTransactionHashes')
   }
 }
 </script>
