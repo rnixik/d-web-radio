@@ -12,9 +12,14 @@
       <small id="socketsAddressHelp" class="form-text text-muted">Use the default Web Sockets signaling server or enter your one.</small>
     </div>
 
-    <button v-if="!signalingIsConnected && !connectingSignaling" class="btn btn-primary mb-4" @click="connect">Connect</button>
+    <button v-if="!connectingSignaling" class="btn btn-primary mb-4" @click="connect">Connect</button>
 
-    <div v-if="signalingIsConnected" class="alert alert-warning mb-4">Signaling is CONNECTED, waiting for peers</div>
+    <div v-if="signalingIsConnected" class="alert alert-warning mb-4">
+      Signaling is CONNECTED, waiting for peers
+      <div class="spinner-grow" role="status">
+        <span class="sr-only">Waiting for connection...</span>
+      </div>
+    </div>
 
     <div v-if="peerConnected" class="alert alert-success mb-4">
       PEER CONNECTED
@@ -24,7 +29,7 @@
     </div>
 
     <div v-if="!peerConnected && socketsSignalingIsConnected" class="alert alert-info mb-4">
-      You are already connected.
+      You are already connected to the signaling server.
     </div>
 
     <div v-if="countdown > 0 && !cancelCountdown" class="alert alert-info mb-4">
@@ -82,19 +87,20 @@ export default class SocketsSignaling extends Vue {
     this.signaling.prepare().then(() => {
       this.connectingSignaling = false
       this.signalingIsConnected = true
-      EventHub.$emit('socketsSignalingIsConnected')
       const iceServers = [
         { urls: 'stun:stun.l.google.com:19302' },
         {
-          urls: 'turn:numb.viagenie.ca',
-          credential: '$7Ux63KGKjCXvZm',
-          username: 'rnix@yandex.ru'
+          urls: ['turn:numb.viagenie.ca'],
+          username: 'rnix@yandex.ru',
+          credential: '$7Ux63KGKjCXvZm'
         }
       ]
       const connection = this.connectionsPool!.connect(this.signaling!, iceServers)
       connection.addOnOpenCallback(() => {
         this.peerConnected = true
       })
+
+      EventHub.$emit('socketsSignalingIsConnected', connection, this.signaling)
     })
   }
 }

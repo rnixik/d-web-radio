@@ -9319,10 +9319,10 @@ webpack@^4.0.0:
     watchpack "^1.6.1"
     webpack-sources "^1.4.1"
 
-webrtc-connection@^1.3.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/webrtc-connection/-/webrtc-connection-1.4.0.tgz#a406f15072fe814ac89e58d486de1c9538ad5ec8"
-  integrity sha512-fcs9qkHEYx+EYZF/B6oyvIeVOUzzbG2+ReG88shz9n9glwpSTfpDBHjQRhiY5kVSGYe0wbqttqYZx5/u+c0H1w==
+webrtc-connection@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/webrtc-connection/-/webrtc-connection-3.0.0.tgz#b4118418e71d3504cf74b233665a617b2019d5c1"
+  integrity sha512-wIdpv3vgB/UzNT/DU05EKviW5Yr9+LRZfel1qZe94t9VS6RPHVhAFe3EJ3Ql3n7187qAjeZUq+oj6UGP2YL5RA==
   dependencies:
     "@types/socket.io-client" "^1.4.32"
     socket.io-client "^2.3.0"

@@ -236,7 +236,7 @@ import LocalSignaling from '@/components/LocalSignaling.vue'
 import ManualSignaling from '@/components/ManualSignaling.vue'
 import SocketsSignaling from '@/components/SocketsSignaling.vue'
 import PostedUrlsList from '@/components/PostedUrlsList.vue'
-import { WebRtcConnectionsPool } from 'webrtc-connection'
+import { SocketIoSignaling, WebRtcConnectionsPool } from 'webrtc-connection'
 import { AuthenticatedUser } from 'd-web-core/lib/models/AuthenticatedUser'
 import { YouTubeRadio } from '@/app/YouTubeRadio'
 import { UserWithTransactions } from 'd-web-core/lib/models/UserWithTransactions'
@@ -248,6 +248,7 @@ import IgnoreAndBlockPreferences from '@/components/pages/IgnoreAndBlockPreferen
 import { PreferencesIgnoreAndBlock } from 'd-web-core/lib/models/PreferencesIgnoreAndBlock'
 import { PostedUrl } from '@/app/models/PostedUrl'
 import Player from '@/components/Player.vue'
+import { WebRtcConnection } from 'webrtc-connection/lib/WebRtcConnection'
 
 require('@/assets/sidebar.css')
 
@@ -285,6 +286,8 @@ export default class Namespace extends Vue {
   private maxVideoDuration = 300
   private sidebarToggled = true
   private socketsSignalingIsConnected = false
+  private connectionViaSockets: WebRtcConnection | null = null
+  private socketsSignaling: SocketIoSignaling | null = null
 
   $refs!: {
     loginCloseBtn: HTMLElement
@@ -383,8 +386,17 @@ export default class Namespace extends Vue {
       this.updatePlaylist()
     })
 
-    EventHub.$on('socketsSignalingIsConnected', () => {
+    EventHub.$on('socketsSignalingIsConnected', (connection: WebRtcConnection, socketsSignaling: SocketIoSignaling) => {
       this.socketsSignalingIsConnected = true
+      // Close previous
+      if (this.connectionsPool && this.connectionViaSockets) {
+        this.connectionsPool.closeConnection(this.connectionViaSockets)
+      }
+      if (this.socketsSignaling) {
+        this.socketsSignaling.disconnect()
+      }
+      this.connectionViaSockets = connection
+      this.socketsSignaling = socketsSignaling
     })
   }
 
