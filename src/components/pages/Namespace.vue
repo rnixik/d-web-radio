@@ -1,8 +1,10 @@
 <template>
   <div>
-    <div class="page-wrapper chiller-theme toggled">
-      <a id="show-sidebar" class="btn btn-sm btn-dark" href="#">
-        <i class="fas fa-bars"></i>
+    <div class="page-wrapper chiller-theme" v-bind:class="{toggled: sidebarToggled}">
+      <a id="show-sidebar" class="btn btn-sm btn-dark" href="javascript: void(0);" @click="sidebarToggled=true">
+        <svg id="i-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+          <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24" />
+        </svg>
       </a>
       <nav id="sidebar" class="sidebar-wrapper">
         <div class="sidebar-content">
@@ -10,8 +12,8 @@
             <router-link to="/">
               {{ namespace }}
             </router-link>
-            <div id="close-sidebar">
-              <i class="fas fa-times"></i>
+            <div id="close-sidebar" @click="sidebarToggled=false">
+              <span aria-hidden="true">&times;</span>
             </div>
           </div>
           <div class="sidebar-header" v-if="authenticatedUser">
@@ -280,6 +282,7 @@ export default class Namespace extends Vue {
   private doNotAddToPlaylistDownVoted = true
   private networkingIsStarted = false
   private maxVideoDuration = 300
+  private sidebarToggled = true
 
   $refs!: {
     loginCloseBtn: HTMLElement
