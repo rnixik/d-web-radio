@@ -45,7 +45,8 @@
           </a>
         </div>
         <div class="mr-3">
-          <img :src="postedUrl.urlModel.poster" @click="play(postedUrl)" width="156" alt="">
+          <img v-if="postedUrl.urlModel.poster" :src="postedUrl.urlModel.poster" @click="play(postedUrl)" width="156" alt="">
+          <img v-if="!postedUrl.urlModel.poster" src="@/assets/no_poster.png" @click="play(postedUrl)" width="156" alt="">
           <div class="text-muted">
             <small>{{ postedUrl.storedAt.toLocaleString() }}</small>
           </div>
