@@ -34,7 +34,7 @@
           </div>
           <div class="modal-body">
             <div class="form-group">
-              <label for="postUrlInput">Link to a video on YouTube</label>
+              <label for="postUrlInput">Link to a video on YouTube. Max duration of the video is {{ maxVideoDuration }}s.</label>
               <input
                 type="text"
                 class="form-control"
@@ -91,6 +91,7 @@ export default class Radio extends Vue {
   @Prop({ default: null }) youTubeRadio!: YouTubeRadio
   @Prop({ default: null }) authenticatedUser!: AuthenticatedUser
   @Prop({ default: 0 }) activeConnectionsNum!: number
+  @Prop({ default: 0 }) maxVideoDuration!: number
 
   private url = ''
   private postUrlErrorMessage = ''

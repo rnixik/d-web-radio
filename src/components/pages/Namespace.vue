@@ -118,6 +118,7 @@
             :myTransactions="myTransactions"
             :usersWithTransactions="usersWithTransactions"
             :preferencesIgnoreAndBlock="preferencesIgnoreAndBlock"
+            :maxVideoDuration="maxVideoDuration"
           ></router-view>
 
           <div id="validator-player-container" style="display: none;"></div>
@@ -278,6 +279,7 @@ export default class Namespace extends Vue {
   private playingListId: string = ''
   private doNotAddToPlaylistDownVoted = true
   private networkingIsStarted = false
+  private maxVideoDuration = 300
 
   $refs!: {
     loginCloseBtn: HTMLElement
@@ -399,7 +401,7 @@ export default class Namespace extends Vue {
       this.activeConnectionsNum -= 1
     })
 
-    this.youTubeRadio = new YouTubeRadio(this.namespace, 300, this.connectionsPool)
+    this.youTubeRadio = new YouTubeRadio(this.namespace, this.maxVideoDuration, this.connectionsPool)
 
     const dApp = this.youTubeRadio.dApp
     this.connectionsPool.addOnOpenCallback(() => {
