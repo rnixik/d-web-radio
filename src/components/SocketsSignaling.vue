@@ -12,7 +12,7 @@
       <small id="socketsAddressHelp" class="form-text text-muted">Use the default Web Sockets signaling server or enter your one.</small>
     </div>
 
-    <button class="btn btn-primary mb-4" @click="connect">Connect</button>
+    <button v-if="!signalingIsConnected && !connectingSignaling" class="btn btn-primary mb-4" @click="connect">Connect</button>
 
     <div v-if="signalingIsConnected" class="alert alert-warning mb-4">Signaling is CONNECTED, waiting for peers</div>
 
@@ -65,6 +65,7 @@ export default class SocketsSignaling extends Vue {
   }
 
   connect (): void {
+    this.cancelCountdown = true
     this.connectingSignaling = true
     this.signaling = new SocketIoSignaling(this.address, this.room)
     this.signaling.prepare().then(() => {
