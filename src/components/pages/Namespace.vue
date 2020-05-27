@@ -13,7 +13,7 @@
               {{ namespace }}
             </router-link>
             <div id="close-sidebar" @click="sidebarToggled=false">
-              <span aria-hidden="true">&times;</span>
+              <span aria-hidden="true" style="padding: 6px 12px;">&times;</span>
             </div>
           </div>
           <div class="sidebar-header" v-if="authenticatedUser">
