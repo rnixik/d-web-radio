@@ -12,7 +12,7 @@
       <small id="namespace-help" class="form-text text-muted">Namespace means the name of a room to share your music.</small>
     </div>
     <p class="lead">
-      <a class="btn btn-primary btn-lg" href="#" role="button" @click="begin">Begin</a>
+      <button class="btn btn-primary btn-lg" @click="begin">Begin</button>
     </p>
   </div>
 </template>
