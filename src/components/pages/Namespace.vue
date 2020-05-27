@@ -383,7 +383,15 @@ export default class Namespace extends Vue {
       return
     }
     this.namespace = this.$route.params.namespace
-    this.connectionsPool = new WebRtcConnectionsPool(true)
+
+    // Reset
+    this.activeConnectionsNum = 0
+    this.networkingIsStarted = false
+    if (this.connectionsPool) {
+      this.connectionsPool.close()
+    }
+
+    this.connectionsPool = new WebRtcConnectionsPool(true, this.namespace)
     this.connectionsPool.addOnOpenCallback(() => {
       this.activeConnectionsNum += 1
     })
