@@ -121,6 +121,7 @@
             :usersWithTransactions="usersWithTransactions"
             :preferencesIgnoreAndBlock="preferencesIgnoreAndBlock"
             :maxVideoDuration="maxVideoDuration"
+            :socketsSignalingIsConnected="socketsSignalingIsConnected"
           ></router-view>
 
           <div id="validator-player-container" style="display: none;"></div>
@@ -283,6 +284,7 @@ export default class Namespace extends Vue {
   private networkingIsStarted = false
   private maxVideoDuration = 300
   private sidebarToggled = true
+  private socketsSignalingIsConnected = false
 
   $refs!: {
     loginCloseBtn: HTMLElement
@@ -379,6 +381,10 @@ export default class Namespace extends Vue {
       this.playerVideoId = postedUrl.urlModel.videoId
       this.playingListId = listId
       this.updatePlaylist()
+    })
+
+    EventHub.$on('socketsSignalingIsConnected', () => {
+      this.socketsSignalingIsConnected = true
     })
   }
 

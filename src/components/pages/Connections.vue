@@ -19,7 +19,7 @@
           <SocketsSignaling
             :room="namespace"
             :connectionsPool="connectionsPool"
-            :activeConnectionsNum="activeConnectionsNum"
+            :socketsSignalingIsConnected="socketsSignalingIsConnected"
           />
         </div>
         <div class="tab-pane fade" id="manual" role="tabpanel" aria-labelledby="manual-tab">
@@ -50,5 +50,6 @@ export default class Connection extends Vue {
   @Prop({ default: '' }) namespace!: string
   @Prop({ default: null }) connectionsPool!: WebRtcConnectionsPool
   @Prop({ default: 0 }) activeConnectionsNum!: number
+  @Prop({ default: false }) socketsSignalingIsConnected!: boolean
 }
 </script>

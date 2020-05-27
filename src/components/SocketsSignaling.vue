@@ -23,7 +23,7 @@
       </p>
     </div>
 
-    <div v-if="!peerConnected && activeConnectionsNum > 0" class="alert alert-info mb-4">
+    <div v-if="!peerConnected && socketsSignalingIsConnected" class="alert alert-info mb-4">
       You are already connected.
     </div>
 
@@ -37,12 +37,14 @@
 <script lang="ts">
 import { Component, Vue, Prop } from 'vue-property-decorator'
 import { SocketIoSignaling, WebRtcConnectionsPool } from 'webrtc-connection'
+import { EventHub } from '@/components/EventHub'
 
 @Component
 export default class SocketsSignaling extends Vue {
   @Prop() connectionsPool?: WebRtcConnectionsPool
   @Prop({ default: 'example' }) room!: string
   @Prop({ default: 0 }) activeConnectionsNum!: number
+  @Prop({ default: false }) socketsSignalingIsConnected!: boolean
   signaling?: SocketIoSignaling
   address: string = 'https://signaler.getid.org'
   peerConnected: boolean = false
@@ -52,10 +54,10 @@ export default class SocketsSignaling extends Vue {
   cancelCountdown = false
 
   created (): void {
-    if (this.activeConnectionsNum < 1) {
-      this.countdownTick()
-    } else {
+    if (this.socketsSignalingIsConnected) {
       this.cancelCountdown = true
+    } else {
+      this.countdownTick()
     }
   }
 
@@ -80,6 +82,7 @@ export default class SocketsSignaling extends Vue {
     this.signaling.prepare().then(() => {
       this.connectingSignaling = false
       this.signalingIsConnected = true
+      EventHub.$emit('socketsSignalingIsConnected')
       const connection = this.connectionsPool!.connect(this.signaling!)
       connection.addOnOpenCallback(() => {
         this.peerConnected = true
