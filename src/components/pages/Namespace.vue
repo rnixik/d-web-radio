@@ -2,7 +2,7 @@
   <div>
     <div class="page-wrapper chiller-theme" v-bind:class="{toggled: sidebarToggled}">
       <a id="show-sidebar" class="btn btn-sm btn-dark" href="javascript: void(0);" @click="sidebarToggled=true">
-        <svg id="i-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+        <svg id="i-menu" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20" height="32" fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
           <path d="M4 8 L28 8 M4 16 L28 16 M4 24 L28 24" />
         </svg>
       </a>
