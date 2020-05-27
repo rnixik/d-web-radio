@@ -83,7 +83,15 @@ export default class SocketsSignaling extends Vue {
       this.connectingSignaling = false
       this.signalingIsConnected = true
       EventHub.$emit('socketsSignalingIsConnected')
-      const connection = this.connectionsPool!.connect(this.signaling!)
+      const iceServers = [
+        { urls: 'stun:stun.l.google.com:19302' },
+        {
+          urls: 'turn:numb.viagenie.ca',
+          credential: '$7Ux63KGKjCXvZm',
+          username: 'rnix@yandex.ru'
+        }
+      ]
+      const connection = this.connectionsPool!.connect(this.signaling!, iceServers)
       connection.addOnOpenCallback(() => {
         this.peerConnected = true
       })
