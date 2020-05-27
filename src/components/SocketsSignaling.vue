@@ -23,6 +23,10 @@
       </p>
     </div>
 
+    <div v-if="!peerConnected && activeConnectionsNum > 0" class="alert alert-info mb-4">
+      You are already connected.
+    </div>
+
     <div v-if="countdown > 0 && !cancelCountdown" class="alert alert-info mb-4">
       Auto-connect in {{ countdown }}s...
       <button class="btn btn-secondary" @click="cancelCountdown = true">Cancel</button>
@@ -38,6 +42,7 @@ import { SocketIoSignaling, WebRtcConnectionsPool } from 'webrtc-connection'
 export default class SocketsSignaling extends Vue {
   @Prop() connectionsPool?: WebRtcConnectionsPool
   @Prop({ default: 'example' }) room!: string
+  @Prop({ default: 0 }) activeConnectionsNum!: number
   signaling?: SocketIoSignaling
   address: string = 'https://signaler.getid.org'
   peerConnected: boolean = false
@@ -47,7 +52,11 @@ export default class SocketsSignaling extends Vue {
   cancelCountdown = false
 
   created (): void {
-    this.countdownTick()
+    if (this.activeConnectionsNum < 1) {
+      this.countdownTick()
+    } else {
+      this.cancelCountdown = true
+    }
   }
 
   countdownTick (): void {

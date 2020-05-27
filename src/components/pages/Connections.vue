@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="row">
     <h1>Connection page</h1>
 
-    <div v-if="connectionsPool">
+    <div v-if="connectionsPool" class="col-12">
       <ul class="nav nav-tabs mb-2" role="tablist">
         <li class="nav-item">
           <a class="nav-link active" id="sockets-tab" data-toggle="tab" href="#sockets" role="tab" aria-controls="sockets" aria-selected="true">Sockets</a>
@@ -16,7 +16,11 @@
       </ul>
       <div class="tab-content">
         <div class="tab-pane fade show active" id="sockets" role="tabpanel" aria-labelledby="sockets-tab">
-          <SocketsSignaling :room="namespace" :connectionsPool="connectionsPool"/>
+          <SocketsSignaling
+            :room="namespace"
+            :connectionsPool="connectionsPool"
+            :activeConnectionsNum="activeConnectionsNum"
+          />
         </div>
         <div class="tab-pane fade" id="manual" role="tabpanel" aria-labelledby="manual-tab">
           <ManualSignaling :connectionsPool="connectionsPool"/>
@@ -45,5 +49,6 @@ import SocketsSignaling from '@/components/SocketsSignaling.vue'
 export default class Connection extends Vue {
   @Prop({ default: '' }) namespace!: string
   @Prop({ default: null }) connectionsPool!: WebRtcConnectionsPool
+  @Prop({ default: 0 }) activeConnectionsNum!: number
 }
 </script>
