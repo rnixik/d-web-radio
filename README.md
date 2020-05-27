@@ -7,6 +7,8 @@ other parties. Any other users can play, like or dislike these video.
 
 See it in action here: https://rnixik.github.io/d-web-radio/
 
+![Preview](https://raw.githubusercontent.com/rnixik/d-web-radio/master/src/assets/preview.png)
+
 ## Technical details
 
 Users connect to each other with RTCDataChannel.
