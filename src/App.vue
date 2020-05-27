@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <router-view kek="pek"></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
