@@ -93,6 +93,11 @@ export default class SocketsSignaling extends Vue {
           urls: ['turn:numb.viagenie.ca'],
           username: 'rnix@yandex.ru',
           credential: '$7Ux63KGKjCXvZm'
+        },
+        {
+          urls: ['turn:185.14.184.177'],
+          username: '1591860133',
+          credential: 'hVdIrj051qW+eO71WRdz6pG/7t8='
         }
       ]
       const connection = this.connectionsPool!.connect(this.signaling!, iceServers)
