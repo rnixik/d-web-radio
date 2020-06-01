@@ -10,6 +10,7 @@ import Top from '@/components/pages/Top.vue'
 import MyTransactions from '@/components/pages/MyTransactions.vue'
 import UsersWithTransactions from '@/components/pages/UsersWithTransactions.vue'
 import IgnoreAndBlockPreferences from '@/components/pages/IgnoreAndBlockPreferences.vue'
+import About from '@/components/pages/About.vue'
 
 Vue.use(VueRouter)
 
@@ -68,6 +69,11 @@ const routes = [
       {
         path: 'ignore-and-block',
         component: IgnoreAndBlockPreferences,
+        name: 'ignoreAndBlock'
+      },
+      {
+        path: 'about',
+        component: About,
         name: 'ignoreAndBlock'
       }
     ]

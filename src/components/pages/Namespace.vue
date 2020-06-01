@@ -88,6 +88,11 @@
                   <span>Ignore and block</span>
                 </router-link>
               </li>
+              <li>
+                <router-link to="about">
+                  <span>About</span>
+                </router-link>
+              </li>
             </ul>
           </div>
           <!-- sidebar-menu  -->
